@@ -31,7 +31,29 @@ def get_ai_recommendation(kpi_data):
     except Exception as e:
         return f"AI Recommendation currently unavailable. Please check API configuration. (Error: {str(e)})"
 
-
+def generate_customer_outreach_script(customer_profile):
+    """Generates a personalized outreach email for a specific customer."""
+    prompt = f"""
+    You are an empathetic, senior Customer Success Manager at a premium FinTech bank.
+    Write a short, highly personalized apology and retention email to this specific customer 
+    who is at high risk of churning due to our platform's technical payment failures.
+    
+    Customer Profile:
+    - Age: {customer_profile['Age']}
+    - Account Balance: ${customer_profile['Balance']:,.2f}
+    - Recent Failed Transactions: {customer_profile['failed_transactions_last_30_days']}
+    - Geography: {customer_profile['Geography']}
+    - Tenure (Years with us): {customer_profile['Tenure']}
+    
+    Acknowledge the specific number of failed transactions. Emphasize that we value their business 
+    (mentioning their tenure or balance subtly). Offer them a sincere apology and a direct line to 
+    VIP support. Keep it professional, empathetic, and under 150 words. Do not use placeholders like [Your Name].
+    """
+    try:
+        response = model.generate_content(prompt)
+        return response.text.strip()
+    except Exception as e:
+        return f"AI generation failed. (Error: {str(e)})"
 # --- Phase 3: Streamlit App Configuration ---
 st.set_page_config(page_title="FinTech Churn & Impact Analyzer", page_icon="💸", layout="wide")
 
@@ -65,6 +87,23 @@ if not df.empty:
         (df['CreditScore'].between(credit_range[0], credit_range[1])) &
         (df['failed_transactions_last_30_days'] <= failed_tx)
     ]
+    
+    # --- Phase 5: Intervention ROI Simulator (Sidebar) ---
+    st.sidebar.markdown("---")
+    st.sidebar.header("🎯 Intervention ROI Simulator")
+    retention_cost = st.sidebar.number_input("Cost of Retention Offer ($/user)", min_value=0, value=50, step=10)
+    win_back_rate = st.sidebar.slider("Expected Win-Back Success Rate (%)", 0, 100, 40)
+    
+    # Calculate potential ROI based on top 50 high-risk users
+    high_risk_df = filtered_df.sort_values(by=['failed_transactions_last_30_days', 'Balance'], ascending=[False, False])
+    top_50_risk = high_risk_df.head(50)
+    total_campaign_cost = len(top_50_risk) * retention_cost
+    projected_saved_revenue = (top_50_risk['Balance'].sum() * (win_back_rate / 100))
+    net_roi = projected_saved_revenue - total_campaign_cost
+    
+    st.sidebar.metric("Total Campaign Cost", f"${total_campaign_cost:,.0f}")
+    st.sidebar.metric("Projected Saved Revenue", f"${projected_saved_revenue:,.0f}")
+    st.sidebar.metric("Net ROI", f"${net_roi:,.0f}", delta=f"{win_back_rate}% Success Rate")
     
     # --- KPI Calculations ---
     total_customers = len(filtered_df)
@@ -122,5 +161,34 @@ if not df.empty:
     
     # In a real model, we would use predict_proba(). 
     # For this dashboard, we approximate risk by failed transactions and balance.
-    high_risk_df = filtered_df.sort_values(by=['failed_transactions_last_30_days', 'Balance'], ascending=[False, False])
-    st.dataframe(high_risk_df.head(50), use_container_width=True)
+    # high_risk_df is already calculated above for the ROI simulator
+    
+    # Add a pseudo-CustomerID for selection purposes
+    top_50_risk = top_50_risk.copy()
+    top_50_risk.reset_index(inplace=True)
+    top_50_risk['Customer_ID'] = top_50_risk.index.map(lambda x: f"CUST-{1000 + x}")
+    
+    # Move Customer_ID to front
+    cols = ['Customer_ID'] + [col for col in top_50_risk.columns if col != 'Customer_ID' and col != 'index']
+    top_50_risk = top_50_risk[cols]
+    
+    st.dataframe(top_50_risk.drop(columns=['Exited']), use_container_width=True)
+
+    st.markdown("---")
+    
+    # --- Phase 5: Targeted Customer Recovery & AI Outreach ---
+    st.subheader("🤖 Phase 5: AI-Powered Customer Recovery")
+    st.markdown("Select a high-risk customer from the table above to instantly generate a hyper-personalized retention outreach script.")
+    
+    selected_cust_id = st.selectbox("Select Customer to Recover:", top_50_risk['Customer_ID'].tolist())
+    
+    if selected_cust_id:
+        cust_profile = top_50_risk[top_50_risk['Customer_ID'] == selected_cust_id].iloc[0]
+        
+        st.write(f"**Selected Profile:** {cust_profile['Geography']} | Age: {cust_profile['Age']} | Balance: ${cust_profile['Balance']:,.2f} | Failed TXs: {cust_profile['failed_transactions_last_30_days']}")
+        
+        if st.button("Generate Personalized Recovery Email"):
+            with st.spinner("Gemini is drafting the outreach..."):
+                outreach_script = generate_customer_outreach_script(cust_profile)
+                st.success("Outreach Script Generated Successfully!")
+                st.text_area("Copy and paste to CRM:", value=outreach_script, height=250)

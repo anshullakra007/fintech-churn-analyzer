@@ -25,6 +25,9 @@ This repository contains the end-to-end pipeline for the project, broken down in
 4. **AI-Driven Root Cause Analysis**
    - Integrated the **Google Gemini SDK**.
    - The dashboard dynamically captures the active KPI metrics and prompts the Gemini LLM to generate instant Executive Summaries and Operational Recommendations simulating live alerts.
+5. **Phase 5: AI-Powered Customer Recovery & ROI Simulator (New! ✨)**
+   - **Intervention ROI Simulator**: A sidebar module allowing operations to calculate the exact Net Revenue saved against the cost of a retention offer.
+   - **Targeted Outreach**: Select any customer from the High-Risk table to instantly generate a hyper-personalized, context-aware retention email using Gemini tailored to that specific customer's exact balance, age, and failure frequency.
 
 ---
 
