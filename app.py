@@ -58,37 +58,13 @@ def generate_customer_outreach_script(customer_profile):
 # --- Phase 3: Streamlit App Configuration ---
 st.set_page_config(page_title="FinTech Churn & Impact Analyzer", layout="wide")
 
-# --- Custom CSS Injection (Glassmorphism & Neon Theme) ---
+# --- Custom CSS Injection ---
 st.markdown("""
 <style>
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-/* Main Background and Typography */
-html, body, [class*="css"]  {
-    font-family: 'Inter', sans-serif !important;
-}
-
 /* Clean, flat dark background (Zinc 950) */
 .stApp {
     background-color: #09090b;
     color: #f4f4f5;
-}
-
-/* Solid Cards (Zinc 900) */
-.glass-container {
-    background: #18181b;
-    border-radius: 8px;
-    border: 1px solid #27272a;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    transition: all 0.2s ease-in-out;
-}
-
-.glass-container:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5);
-    border-color: #3f3f46;
 }
 
 /* AI Alert Box */
@@ -103,51 +79,20 @@ html, body, [class*="css"]  {
     line-height: 1.5;
 }
 
-/* KPIs (Metrics) */
-div[data-testid="metric-container"] {
-    background: #18181b;
-    border: 1px solid #27272a;
-    border-radius: 8px;
-    padding: 1.25rem;
-    transition: all 0.2s ease;
-}
-
-div[data-testid="metric-container"]:hover {
-    border-color: #3f3f46;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
-}
-
-div[data-testid="stMetricValue"] {
-    font-size: 2rem !important;
-    font-weight: 600 !important;
-    color: #fafafa !important;
-}
-
-div[data-testid="stMetricLabel"] {
-    font-size: 0.875rem !important;
-    font-weight: 500 !important;
-    color: #a1a1aa !important;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
 /* Sidebar styling */
 section[data-testid="stSidebar"] {
     background-color: rgba(11, 12, 16, 0.85) !important;
     border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
-
-/* Headers */
-h1, h2, h3 {
-    color: #ffffff !important;
-    font-weight: 800 !important;
-    letter-spacing: 0.5px;
-}
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>Customer Retention & Impact Analytics</h1>", unsafe_allow_html=True)
-st.markdown("<p style='font-size: 1.1rem; color: #a1a1aa; margin-bottom: 1rem;'>Monitor customer churn metrics and the operational impact of payment gateway failures.</p>", unsafe_allow_html=True)
+st.title("Customer Retention Analytics")
+st.markdown("Monitor customer churn metrics and the operational impact of payment gateway failures.")
+
+# --- Main Page Navigation ---
+nav_selection = st.radio("Navigation", ["Overview", "Insights", "Recovery"], horizontal=True, label_visibility="collapsed")
+st.markdown("---")
 
 with st.expander("Dashboard Documentation", expanded=False):
     st.markdown("""
@@ -175,11 +120,6 @@ def load_data():
 df = load_data()
 
 if not df.empty:
-    # --- UI Layout: Sidebar Navigation ---
-    st.sidebar.header("Navigation")
-    nav_selection = st.sidebar.radio("Select View:", ["Executive Overview", "AI Root Cause Analysis", "Retention Console"], label_visibility="collapsed")
-    st.sidebar.markdown("---")
-
     # --- Sidebar Filters ---
     st.sidebar.header("Filter Customer Data")
     st.sidebar.markdown("<p style='font-size: 0.9rem; color: #94a3b8; margin-top: -10px;'>Adjust these parameters to isolate user segments and see how technical friction impacts churn.</p>", unsafe_allow_html=True)
@@ -221,7 +161,7 @@ if not df.empty:
         top_50_risk = high_risk_df.head(50)
 
         # --- Phase 5: Intervention ROI Simulator (Sidebar) ---
-        if nav_selection == "Retention Console":
+        if nav_selection == "Recovery":
             st.sidebar.markdown("---")
             st.sidebar.header("Intervention ROI Simulator")
             st.sidebar.markdown("<p style='font-size: 0.9rem; color: #94a3b8; margin-top: -10px;'>If we offer angry customers money to stay, do we still make a profit? Play with the numbers to find out.</p>", unsafe_allow_html=True)
@@ -250,18 +190,16 @@ if not df.empty:
             'revenue_risk': revenue_at_risk
         }
         
-    if nav_selection == "Executive Overview":
-        st.markdown("<br>", unsafe_allow_html=True)
+    if nav_selection == "Overview":
         # --- KPI Display ---
         col1, col2, col3 = st.columns(3)
         col1.metric("Total Customers", f"{total_customers:,}")
         col2.metric("Overall Churn Rate", f"{churn_rate:.2f}%")
         col3.metric("Revenue at Risk", f"${revenue_at_risk:,.2f}")
         
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("---")
         
         # --- Visualizations ---
-        st.markdown('<div class="glass-container">', unsafe_allow_html=True)
         col_chart1, col_chart2 = st.columns(2)
         
         with col_chart1:
@@ -284,13 +222,11 @@ if not df.empty:
                                    color_discrete_map={0: '#3b82f6', 1: '#ef4444'})
             fig_bal.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#a1a1aa', showlegend=False)
             st.plotly_chart(fig_bal, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
 
-    elif nav_selection == "AI Root Cause Analysis":
+    elif nav_selection == "Insights":
         with st.spinner("Generating AI Operational Insights..."):
             ai_insight = get_ai_recommendation(kpi_dict)
 
-        st.markdown("<br>", unsafe_allow_html=True)
         st.markdown(f"""
         <div class="ai-alert-box">
             <strong style="color: #3b82f6; font-size: 1.2rem;">AI Operational Alert:</strong><br>
@@ -299,8 +235,7 @@ if not df.empty:
         </div>
         """, unsafe_allow_html=True)
 
-    elif nav_selection == "Retention Console":
-        st.markdown("<br>", unsafe_allow_html=True)
+    elif nav_selection == "Recovery":
         # --- Data Table: High-Risk Customers ---
         st.subheader("Top 50 'High-Risk' Customers")
         st.markdown("Users heavily impacted by payment failures, ranked by Live ML Prediction Risk.")
@@ -314,12 +249,11 @@ if not df.empty:
         cols = ['Customer_ID'] + [col for col in top_50_risk.columns if col != 'Customer_ID' and col != 'index']
         top_50_risk = top_50_risk[cols]
         
-        st.markdown('<div class="glass-container">', unsafe_allow_html=True)
         st.dataframe(top_50_risk.drop(columns=['Exited']), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        
+        st.markdown("---")
         
         # --- Phase 5: Targeted Customer Recovery & AI Outreach ---
-        st.markdown('<div class="glass-container">', unsafe_allow_html=True)
         st.subheader("AI-Powered Customer Recovery")
         st.markdown("<p style='color: #a1a1aa;'>Select a high-risk customer from the table above to instantly generate a hyper-personalized retention outreach script.</p>", unsafe_allow_html=True)
         
@@ -335,4 +269,3 @@ if not df.empty:
                     outreach_script = generate_customer_outreach_script(cust_profile)
                     st.success("Outreach Script Generated Successfully!")
                     st.text_area("Copy and paste to CRM:", value=outreach_script, height=250)
-        st.markdown('</div>', unsafe_allow_html=True)
