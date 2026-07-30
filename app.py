@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import google.generativeai as genai
+from google import genai
 import os
 import joblib
 
@@ -9,8 +9,7 @@ import joblib
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     st.warning("GEMINI_API_KEY environment variable not set. AI insights will not be available.")
-genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
+client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 
 def get_ai_recommendation(kpi_data):
     """Generates an executive summary using Gemini API."""
@@ -27,7 +26,9 @@ def get_ai_recommendation(kpi_data):
     alerting the operations and collections team on immediate actions. Do not use markdown formatting.
     """
     try:
-        response = model.generate_content(prompt)
+        if not client:
+            return "AI Recommendation currently unavailable. API Key missing."
+        response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
         return response.text.strip()
     except Exception as e:
         return f"AI Recommendation currently unavailable. Please check API configuration. (Error: {str(e)})"
@@ -51,7 +52,9 @@ def generate_customer_outreach_script(customer_profile):
     VIP support. Keep it professional, empathetic, and under 150 words. Do not use placeholders like [Your Name].
     """
     try:
-        response = model.generate_content(prompt)
+        if not client:
+            return "AI generation failed. API Key missing."
+        response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
         return response.text.strip()
     except Exception as e:
         return f"AI generation failed. (Error: {str(e)})"
