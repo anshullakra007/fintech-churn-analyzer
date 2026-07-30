@@ -175,6 +175,11 @@ def load_data():
 df = load_data()
 
 if not df.empty:
+    # --- UI Layout: Sidebar Navigation ---
+    st.sidebar.header("Navigation")
+    nav_selection = st.sidebar.radio("Select View:", ["Executive Overview", "AI Root Cause Analysis", "Retention Console"], label_visibility="collapsed")
+    st.sidebar.markdown("---")
+
     # --- Sidebar Filters ---
     st.sidebar.header("Filter Customer Data")
     st.sidebar.markdown("<p style='font-size: 0.9rem; color: #94a3b8; margin-top: -10px;'>Adjust these parameters to isolate user segments and see how technical friction impacts churn.</p>", unsafe_allow_html=True)
@@ -211,43 +216,40 @@ if not df.empty:
             st.error(f"Failed to load ML model. Ensure churn_model.joblib exists. Error: {str(e)}")
             filtered_df['Churn Risk (%)'] = 0.0
 
-        # --- Phase 5: Intervention ROI Simulator (Sidebar) ---
-        st.sidebar.markdown("---")
-        st.sidebar.header("Intervention ROI Simulator")
-        st.sidebar.markdown("<p style='font-size: 0.9rem; color: #94a3b8; margin-top: -10px;'>If we offer angry customers money to stay, do we still make a profit? Play with the numbers to find out.</p>", unsafe_allow_html=True)
-        retention_cost = st.sidebar.number_input("Cost of Retention Offer ($/user)", min_value=0, value=50, step=10, help="How much are you willing to spend (e.g. statement credit) to save a single customer?")
-        win_back_rate = st.sidebar.slider("Expected Win-Back Success Rate (%)", 0, 100, 40, help="If we send the apology email, what percentage of customers will actually decide to stay?")
-        
         # Calculate potential ROI based on top 50 high-risk users using REAL ML Probability
         high_risk_df = filtered_df.sort_values(by=['Churn Risk (%)', 'Balance'], ascending=[False, False])
         top_50_risk = high_risk_df.head(50)
-    total_campaign_cost = len(top_50_risk) * retention_cost
-    projected_saved_revenue = (top_50_risk['Balance'].sum() * (win_back_rate / 100))
-    net_roi = projected_saved_revenue - total_campaign_cost
-    
-    st.sidebar.metric("Total Campaign Cost", f"${total_campaign_cost:,.0f}")
-    st.sidebar.metric("Projected Saved Revenue", f"${projected_saved_revenue:,.0f}")
-    st.sidebar.metric("Net ROI", f"${net_roi:,.0f}", delta=f"{win_back_rate}% Success Rate")
-    
-    # --- KPI Calculations ---
-    total_customers = len(filtered_df)
-    churn_rate = (filtered_df['Exited'].mean() * 100) if total_customers > 0 else 0
-    avg_failed_tx = filtered_df['failed_transactions_last_30_days'].mean()
-    revenue_at_risk = filtered_df[filtered_df['Exited'] == 1]['Balance'].sum()
-    
-    # --- AI Root Cause Analysis (Phase 4) ---
-    kpi_dict = {
-        'total_customers': total_customers,
-        'churn_rate': round(churn_rate, 2),
-        'avg_failed_tx': round(avg_failed_tx, 2),
-        'revenue_risk': revenue_at_risk
-    }
-    
-    # --- UI Layout: Sidebar Navigation ---
-    st.sidebar.markdown("---")
-    st.sidebar.header("Navigation")
-    nav_selection = st.sidebar.radio("Select View:", ["Executive Overview", "AI Root Cause Analysis", "Retention Console"], label_visibility="collapsed")
-    
+
+        # --- Phase 5: Intervention ROI Simulator (Sidebar) ---
+        if nav_selection == "Retention Console":
+            st.sidebar.markdown("---")
+            st.sidebar.header("Intervention ROI Simulator")
+            st.sidebar.markdown("<p style='font-size: 0.9rem; color: #94a3b8; margin-top: -10px;'>If we offer angry customers money to stay, do we still make a profit? Play with the numbers to find out.</p>", unsafe_allow_html=True)
+            retention_cost = st.sidebar.number_input("Cost of Retention Offer ($/user)", min_value=0, value=50, step=10, help="How much are you willing to spend (e.g. statement credit) to save a single customer?")
+            win_back_rate = st.sidebar.slider("Expected Win-Back Success Rate (%)", 0, 100, 40, help="If we send the apology email, what percentage of customers will actually decide to stay?")
+            
+            total_campaign_cost = len(top_50_risk) * retention_cost
+            projected_saved_revenue = (top_50_risk['Balance'].sum() * (win_back_rate / 100))
+            net_roi = projected_saved_revenue - total_campaign_cost
+            
+            st.sidebar.metric("Total Campaign Cost", f"${total_campaign_cost:,.0f}")
+            st.sidebar.metric("Projected Saved Revenue", f"${projected_saved_revenue:,.0f}")
+            st.sidebar.metric("Net ROI", f"${net_roi:,.0f}", delta=f"{win_back_rate}% Success Rate")
+        
+        # --- KPI Calculations ---
+        total_customers = len(filtered_df)
+        churn_rate = (filtered_df['Exited'].mean() * 100) if total_customers > 0 else 0
+        avg_failed_tx = filtered_df['failed_transactions_last_30_days'].mean()
+        revenue_at_risk = filtered_df[filtered_df['Exited'] == 1]['Balance'].sum()
+        
+        # --- AI Root Cause Analysis (Phase 4) ---
+        kpi_dict = {
+            'total_customers': total_customers,
+            'churn_rate': round(churn_rate, 2),
+            'avg_failed_tx': round(avg_failed_tx, 2),
+            'revenue_risk': revenue_at_risk
+        }
+        
     if nav_selection == "Executive Overview":
         st.markdown("<br>", unsafe_allow_html=True)
         # --- KPI Display ---
