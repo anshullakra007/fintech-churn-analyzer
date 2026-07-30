@@ -9,7 +9,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     st.warning("GEMINI_API_KEY environment variable not set. AI insights will not be available.")
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash-latest')
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 def get_ai_recommendation(kpi_data):
     """Generates an executive summary using Gemini API."""
@@ -116,7 +116,7 @@ html, body, [class*="css"]  {
 
 /* Neon KPIs */
 div[data-testid="stMetricValue"] {
-    font-size: 2.5rem !important;
+    font-size: 1.8rem !important;
     font-weight: 800 !important;
     color: #66fcf1 !important;
     text-shadow: 0 0 10px rgba(102, 252, 241, 0.3);
