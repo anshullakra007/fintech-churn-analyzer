@@ -243,13 +243,12 @@ if not df.empty:
         'revenue_risk': revenue_at_risk
     }
     
-    with st.spinner("Generating AI Operational Insights..."):
-        ai_insight = get_ai_recommendation(kpi_dict)
+    # --- UI Layout: Sidebar Navigation ---
+    st.sidebar.markdown("---")
+    st.sidebar.header("Navigation")
+    nav_selection = st.sidebar.radio("Select View:", ["Executive Overview", "AI Root Cause Analysis", "Retention Console"], label_visibility="collapsed")
     
-    # --- UI Layout: Tabs ---
-    tab1, tab2, tab3 = st.tabs(["Executive Overview", "AI Root Cause Analysis", "Retention Console"])
-    
-    with tab1:
+    if nav_selection == "Executive Overview":
         st.markdown("<br>", unsafe_allow_html=True)
         # --- KPI Display ---
         col1, col2, col3 = st.columns(3)
@@ -285,7 +284,10 @@ if not df.empty:
             st.plotly_chart(fig_bal, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with tab2:
+    elif nav_selection == "AI Root Cause Analysis":
+        with st.spinner("Generating AI Operational Insights..."):
+            ai_insight = get_ai_recommendation(kpi_dict)
+
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown(f"""
         <div class="ai-alert-box">
@@ -295,7 +297,7 @@ if not df.empty:
         </div>
         """, unsafe_allow_html=True)
 
-    with tab3:
+    elif nav_selection == "Retention Console":
         st.markdown("<br>", unsafe_allow_html=True)
         # --- Data Table: High-Risk Customers ---
         st.subheader("Top 50 'High-Risk' Customers")
@@ -317,7 +319,7 @@ if not df.empty:
         # --- Phase 5: Targeted Customer Recovery & AI Outreach ---
         st.markdown('<div class="glass-container">', unsafe_allow_html=True)
         st.subheader("AI-Powered Customer Recovery")
-        st.markdown("<p style='color: #c5c6c7;'>Select a high-risk customer from the table above to instantly generate a hyper-personalized retention outreach script.</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #a1a1aa;'>Select a high-risk customer from the table above to instantly generate a hyper-personalized retention outreach script.</p>", unsafe_allow_html=True)
         
         selected_cust_id = st.selectbox("Select Customer to Recover:", top_50_risk['Customer_ID'].tolist())
         
