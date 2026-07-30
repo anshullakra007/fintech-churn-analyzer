@@ -96,18 +96,19 @@ html, body, [class*="css"]  {
     border: 1px solid rgba(255, 255, 255, 0.05);
     padding: 2rem;
     margin-bottom: 2rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .glass-container:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(102, 252, 241, 0.2);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(102, 252, 241, 0.4);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 /* AI Alert Neon Box */
 .ai-alert-box {
-    background: rgba(10, 10, 10, 0.6);
+    background: linear-gradient(135deg, rgba(10, 10, 10, 0.8), rgba(20, 20, 20, 0.9));
     border-left: 5px solid #66fcf1;
     border-radius: 8px;
     padding: 1.5rem;
@@ -116,14 +117,38 @@ html, body, [class*="css"]  {
     color: #e0e2e4;
     font-size: 1.1rem;
     line-height: 1.6;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-/* Neon KPIs */
+.ai-alert-box:hover {
+    transform: translateX(5px);
+    box-shadow: -5px 5px 25px rgba(102, 252, 241, 0.2);
+    background: linear-gradient(135deg, rgba(15, 15, 15, 0.9), rgba(25, 25, 25, 1));
+}
+
+/* Neon KPIs (Metrics) */
+div[data-testid="metric-container"] {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+div[data-testid="metric-container"]:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(102, 252, 241, 0.15);
+    border: 1px solid rgba(102, 252, 241, 0.3);
+    background: rgba(255, 255, 255, 0.04);
+}
+
 div[data-testid="stMetricValue"] {
-    font-size: 1.8rem !important;
+    font-size: 2.2rem !important;
     font-weight: 800 !important;
     color: #66fcf1 !important;
-    text-shadow: 0 0 10px rgba(102, 252, 241, 0.3);
+    text-shadow: 0 0 15px rgba(102, 252, 241, 0.4);
 }
 
 div[data-testid="stMetricLabel"] {
@@ -131,19 +156,20 @@ div[data-testid="stMetricLabel"] {
     font-weight: 600 !important;
     color: #c5c6c7 !important;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
 }
 
 /* Sidebar styling */
 section[data-testid="stSidebar"] {
-    background-color: rgba(11, 12, 16, 0.8) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: rgba(11, 12, 16, 0.85) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Headers */
 h1, h2, h3 {
     color: #ffffff !important;
     font-weight: 800 !important;
+    letter-spacing: 0.5px;
 }
 </style>
 """, unsafe_allow_html=True)
