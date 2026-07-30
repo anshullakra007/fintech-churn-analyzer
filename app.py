@@ -188,7 +188,7 @@ if not df.empty:
                                 color_discrete_sequence=['#ef4444'])
                 fig_tx.update_traces(textposition='outside', textfont=dict(color='#a1a1aa'))
                 fig_tx.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#a1a1aa', showlegend=False, yaxis_range=[0,110])
-                st.plotly_chart(fig_tx, use_container_width=True)
+                st.plotly_chart(fig_tx, use_container_width=True, config={'displayModeBar': False})
                 
             with col_chart2:
                 st.subheader("Customer Balance Distribution")
@@ -197,7 +197,7 @@ if not df.empty:
                                        labels={"Exited": "Churned (1=Yes, 0=No)"},
                                        color_discrete_map={0: '#3b82f6', 1: '#ef4444'})
                 fig_bal.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#a1a1aa', showlegend=False)
-                st.plotly_chart(fig_bal, use_container_width=True)
+                st.plotly_chart(fig_bal, use_container_width=True, config={'displayModeBar': False})
 
             st.markdown("---")
             st.subheader("Churn Risk by Customer Tenure")
@@ -206,9 +206,9 @@ if not df.empty:
             fig_tenure = px.line(churn_by_tenure, x='Tenure', y='Churn Rate (%)', markers=True, 
                                  labels={'Tenure': 'Years with Bank (Tenure)'},
                                  color_discrete_sequence=['#8b5cf6'])
-            fig_tenure.update_traces(line=dict(width=3), marker=dict(size=8))
+            fig_tenure.update_traces(line=dict(width=3), marker=dict(size=8), fill='tozeroy', fillcolor='rgba(139, 92, 246, 0.12)')
             fig_tenure.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#a1a1aa', yaxis_range=[0,100])
-            st.plotly_chart(fig_tenure, use_container_width=True)
+            st.plotly_chart(fig_tenure, use_container_width=True, config={'displayModeBar': False})
             
         with tab_insights:
             st.markdown("<br>", unsafe_allow_html=True)
