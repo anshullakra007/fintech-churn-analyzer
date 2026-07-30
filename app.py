@@ -14,16 +14,13 @@ client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 def get_ai_recommendation(kpi_data):
     """Generates an executive summary using Gemini API."""
     prompt = f"""
-    You are a Senior FinTech Operations Consultant. 
-    Analyze the following current dashboard KPIs for a banking application:
-    - Total Customers in view: {kpi_data['total_customers']}
-    - Overall Churn Rate: {kpi_data['churn_rate']}%
-    - Average Failed Transactions (last 30 days): {kpi_data['avg_failed_tx']}
-    - Revenue at Risk (Balance of high-risk customers): ${kpi_data['revenue_risk']:,.2f}
+    You are a Senior Data Analyst. Review these dashboard metrics:
+    - Total Customers: {kpi_data['total_customers']}
+    - Churn Rate: {kpi_data['churn_rate']}%
+    - Avg Failed Tx: {kpi_data['avg_failed_tx']}
+    - Revenue at Risk: ${kpi_data['revenue_risk']:,.2f}
     
-    Based heavily on the number of failed transactions and the revenue at risk, 
-    provide a concise, 3-sentence 'Executive Summary & Operational Recommendation' 
-    alerting the operations and collections team on immediate actions. Do not use markdown formatting.
+    Provide exactly 3 short, punchy bullet points analyzing the risk and suggesting immediate action for the Operations team. Do not use filler words. Speak like a real human analyst sending a quick Slack update. Use standard markdown bullet points (-).
     """
     try:
         if not client:
@@ -59,17 +56,17 @@ def generate_customer_outreach_script(customer_profile):
     except Exception as e:
         return f"AI generation failed. (Error: {str(e)})"
 # --- Phase 3: Streamlit App Configuration ---
-st.set_page_config(page_title="FinTech Churn & Impact Analyzer", page_icon="💸", layout="wide")
+st.set_page_config(page_title="FinTech Churn & Impact Analyzer", layout="wide")
 
 # --- Custom CSS Injection (Glassmorphism & Neon Theme) ---
 st.markdown("""
 <style>
 /* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* Main Background and Typography */
 html, body, [class*="css"]  {
-    font-family: 'Outfit', sans-serif !important;
+    font-family: 'Inter', sans-serif !important;
 }
 
 /* Clean, readable dark background */
@@ -92,16 +89,16 @@ html, body, [class*="css"]  {
 }
 
 .glass-container:hover {
-    transform: translateY(-4px) scale(1.01);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(102, 252, 241, 0.4);
-    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
 }
 
-/* AI Alert Neon Box */
+/* AI Alert Box */
 .ai-alert-box {
-    background: linear-gradient(135deg, rgba(10, 10, 10, 0.8), rgba(20, 20, 20, 0.9));
-    border-left: 5px solid #66fcf1;
+    background: rgba(15, 17, 26, 0.8);
+    border-left: 4px solid #3b82f6;
     border-radius: 8px;
     padding: 1.5rem;
     margin: 1rem 0;
@@ -114,9 +111,9 @@ html, body, [class*="css"]  {
 }
 
 .ai-alert-box:hover {
-    transform: translateX(5px);
-    box-shadow: -5px 5px 25px rgba(102, 252, 241, 0.2);
-    background: linear-gradient(135deg, rgba(15, 15, 15, 0.9), rgba(25, 25, 25, 1));
+    transform: translateX(2px);
+    box-shadow: -3px 3px 15px rgba(59, 130, 246, 0.1);
+    background: rgba(20, 22, 33, 0.9);
 }
 
 /* Neon KPIs (Metrics) */
@@ -130,17 +127,16 @@ div[data-testid="metric-container"] {
 }
 
 div[data-testid="metric-container"]:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(102, 252, 241, 0.15);
-    border: 1px solid rgba(102, 252, 241, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.04);
 }
 
 div[data-testid="stMetricValue"] {
     font-size: 2.2rem !important;
-    font-weight: 800 !important;
-    color: #66fcf1 !important;
-    text-shadow: 0 0 15px rgba(102, 252, 241, 0.4);
+    font-weight: 700 !important;
+    color: #ffffff !important;
 }
 
 div[data-testid="stMetricLabel"] {
@@ -166,10 +162,10 @@ h1, h2, h3 {
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>💸 FinTech Customer Churn & Impact Analyzer</h1>", unsafe_allow_html=True)
-st.markdown("<p style='font-size: 1.2rem; color: #94a3b8; margin-bottom: 1rem;'>Monitor customer churn metrics and the operational impact of payment gateway failures.</p>", unsafe_allow_html=True)
+st.markdown("<h1>FinTech Customer Churn & Impact Analyzer</h1>", unsafe_allow_html=True)
+st.markdown("<p style='font-size: 1.1rem; color: #94a3b8; margin-bottom: 1rem;'>Monitor customer churn metrics and the operational impact of payment gateway failures.</p>", unsafe_allow_html=True)
 
-with st.expander("📖 Quick Start Guide: How to use this Dashboard", expanded=False):
+with st.expander("Quick Start Guide: How to use this Dashboard", expanded=False):
     st.markdown("""
     **Welcome to the Active CRM Command Center!** This dashboard doesn't just show data—it predicts customer churn and helps you actively recover lost revenue.
 
@@ -199,7 +195,7 @@ df = load_data()
 
 if not df.empty:
     # --- Sidebar Filters ---
-    st.sidebar.header("🔍 Filter Customer Data")
+    st.sidebar.header("Filter Customer Data")
     st.sidebar.markdown("<p style='font-size: 0.9rem; color: #94a3b8; margin-top: -10px;'>Adjust these parameters to isolate user segments and see how technical friction impacts churn.</p>", unsafe_allow_html=True)
     
     age_range = st.sidebar.slider("Age Range", int(df['Age'].min()), int(df['Age'].max()), (int(df['Age'].min()), int(df['Age'].max())), help="Filter customers by their age to see demographic differences in churn.")
@@ -236,7 +232,7 @@ if not df.empty:
 
         # --- Phase 5: Intervention ROI Simulator (Sidebar) ---
         st.sidebar.markdown("---")
-        st.sidebar.header("🎯 Intervention ROI Simulator")
+        st.sidebar.header("Intervention ROI Simulator")
         st.sidebar.markdown("<p style='font-size: 0.9rem; color: #94a3b8; margin-top: -10px;'>If we offer angry customers money to stay, do we still make a profit? Play with the numbers to find out.</p>", unsafe_allow_html=True)
         retention_cost = st.sidebar.number_input("Cost of Retention Offer ($/user)", min_value=0, value=50, step=10, help="How much are you willing to spend (e.g. statement credit) to save a single customer?")
         win_back_rate = st.sidebar.slider("Expected Win-Back Success Rate (%)", 0, 100, 40, help="If we send the apology email, what percentage of customers will actually decide to stay?")
@@ -271,7 +267,7 @@ if not df.empty:
     
     st.markdown(f"""
     <div class="ai-alert-box">
-        <strong style="color: #66fcf1; font-size: 1.2rem;">🤖 AI Operational Alert:</strong><br>
+        <strong style="color: #3b82f6; font-size: 1.2rem;">AI Operational Alert:</strong><br>
         <span style="font-size: 0.9rem; color: #94a3b8;">Gemini AI is analyzing your exact dashboard filters above and recommending an immediate course of action.</span><br><br>
         {ai_insight}
     </div>
@@ -317,7 +313,7 @@ if not df.empty:
     st.markdown("<br>", unsafe_allow_html=True)
     
     # --- Data Table: High-Risk Customers ---
-    st.subheader("⚠️ Top 50 'High-Risk' Customers (Highest Probable Churn)")
+    st.subheader("Top 50 'High-Risk' Customers")
     st.markdown("Users heavily impacted by payment failures, ranked by Live ML Prediction Risk.")
     
     # Add a pseudo-CustomerID for selection purposes
@@ -337,7 +333,7 @@ if not df.empty:
     
     # --- Phase 5: Targeted Customer Recovery & AI Outreach ---
     st.markdown('<div class="glass-container">', unsafe_allow_html=True)
-    st.subheader("🤖 AI-Powered Customer Recovery")
+    st.subheader("AI-Powered Customer Recovery")
     st.markdown("<p style='color: #c5c6c7;'>Select a high-risk customer from the table above to instantly generate a hyper-personalized retention outreach script.</p>", unsafe_allow_html=True)
     
     selected_cust_id = st.selectbox("Select Customer to Recover:", top_50_risk['Customer_ID'].tolist())
