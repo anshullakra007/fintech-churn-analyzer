@@ -72,18 +72,10 @@ html, body, [class*="css"]  {
     font-family: 'Outfit', sans-serif !important;
 }
 
-/* Gradient animated background */
+/* Clean, readable dark background */
 .stApp {
-    background: linear-gradient(-45deg, #0b0c10, #1f2833, #0b0c10, #171a21);
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
-    color: #c5c6c7;
-}
-
-@keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    background: radial-gradient(circle at 10% 20%, #151821 0%, #0b0c10 100%);
+    color: #e2e8f0;
 }
 
 /* Glassmorphism Containers */
@@ -175,7 +167,22 @@ h1, h2, h3 {
 """, unsafe_allow_html=True)
 
 st.markdown("<h1>💸 FinTech Customer Churn & Impact Analyzer</h1>", unsafe_allow_html=True)
-st.markdown("<p style='font-size: 1.2rem; color: #c5c6c7; margin-bottom: 2rem;'>Monitor customer churn metrics and the operational impact of payment gateway failures.</p>", unsafe_allow_html=True)
+st.markdown("<p style='font-size: 1.2rem; color: #94a3b8; margin-bottom: 1rem;'>Monitor customer churn metrics and the operational impact of payment gateway failures.</p>", unsafe_allow_html=True)
+
+with st.expander("📖 Quick Start Guide: How to use this Dashboard", expanded=False):
+    st.markdown("""
+    **Welcome to the Active CRM Command Center!** This dashboard doesn't just show data—it predicts customer churn and helps you actively recover lost revenue.
+
+    **Step 1: Filter the Data (Sidebar)**
+    Use the sidebar controls on the left to zero in on specific customer segments. Watch how the overall *Revenue at Risk* changes as you adjust the 'Max Failed Transactions'.
+
+    **Step 2: Monitor AI Operational Alerts**
+    Below, the Google Gemini AI acts as your data analyst, reading the live KPIs and instantly writing a 3-sentence executive summary based on the exact data you filtered.
+
+    **Step 3: Run the ROI Simulator & Recover Customers**
+    At the bottom of the page is the **Top 50 High-Risk Customers** queue. Select a customer from the dropdown, and the AI will draft a hyper-personalized apology email. Use the *Intervention ROI Simulator* in the sidebar to calculate if giving them a $50 statement credit will actually save the company money!
+    """)
+    st.markdown("<br>", unsafe_allow_html=True)
 
 # Load Data
 @st.cache_data
