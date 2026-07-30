@@ -246,87 +246,89 @@ if not df.empty:
     with st.spinner("Generating AI Operational Insights..."):
         ai_insight = get_ai_recommendation(kpi_dict)
     
-    st.markdown(f"""
-    <div class="ai-alert-box">
-        <strong style="color: #3b82f6; font-size: 1.2rem;">AI Operational Alert:</strong><br>
-        <span style="font-size: 0.9rem; color: #94a3b8;">Gemini AI is analyzing your exact dashboard filters above and recommending an immediate course of action.</span><br><br>
-        {ai_insight}
-    </div>
-    """, unsafe_allow_html=True)
+    # --- UI Layout: Tabs ---
+    tab1, tab2, tab3 = st.tabs(["Executive Overview", "AI Root Cause Analysis", "Retention Console"])
     
-    st.markdown("<br>", unsafe_allow_html=True)
+    with tab1:
+        st.markdown("<br>", unsafe_allow_html=True)
+        # --- KPI Display ---
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Total Customers", f"{total_customers:,}")
+        col2.metric("Overall Churn Rate", f"{churn_rate:.2f}%")
+        col3.metric("Revenue at Risk", f"${revenue_at_risk:,.2f}")
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # --- Visualizations ---
+        st.markdown('<div class="glass-container">', unsafe_allow_html=True)
+        col_chart1, col_chart2 = st.columns(2)
+        
+        with col_chart1:
+            st.subheader("Churn Rate vs. Failed Transactions")
+            churn_by_tx = filtered_df.groupby('failed_transactions_last_30_days')['Exited'].mean().reset_index()
+            churn_by_tx['Churn Rate (%)'] = (churn_by_tx['Exited'] * 100).round(1)
+            fig_tx = px.bar(churn_by_tx, x='failed_transactions_last_30_days', y='Churn Rate (%)', 
+                            labels={'failed_transactions_last_30_days': 'Failed Transactions'},
+                            text='Churn Rate (%)',
+                            color_discrete_sequence=['#ef4444'])
+            fig_tx.update_traces(textposition='outside', textfont=dict(color='#a1a1aa'))
+            fig_tx.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#a1a1aa', showlegend=False, yaxis_range=[0,110])
+            st.plotly_chart(fig_tx, use_container_width=True)
+            
+        with col_chart2:
+            st.subheader("Customer Balance Distribution")
+            fig_bal = px.violin(filtered_df, y="Balance", x="Exited", color="Exited", 
+                                   box=True, points=False,
+                                   labels={"Exited": "Churned (1=Yes, 0=No)"},
+                                   color_discrete_map={0: '#3b82f6', 1: '#ef4444'})
+            fig_bal.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#a1a1aa', showlegend=False)
+            st.plotly_chart(fig_bal, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- KPI Display ---
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Customers", f"{total_customers:,}")
-    col2.metric("Overall Churn Rate", f"{churn_rate:.2f}%")
-    col3.metric("Revenue at Risk", f"${revenue_at_risk:,.2f}")
-    
-    st.markdown("---")
-    
-    # --- Visualizations ---
-    st.markdown('<div class="glass-container">', unsafe_allow_html=True)
-    col_chart1, col_chart2 = st.columns(2)
-    
-    with col_chart1:
-        st.subheader("Churn Rate vs. Failed Transactions")
-        churn_by_tx = filtered_df.groupby('failed_transactions_last_30_days')['Exited'].mean().reset_index()
-        churn_by_tx['Churn Rate (%)'] = (churn_by_tx['Exited'] * 100).round(1)
-        fig_tx = px.bar(churn_by_tx, x='failed_transactions_last_30_days', y='Churn Rate (%)', 
-                        labels={'failed_transactions_last_30_days': 'Failed Transactions'},
-                        text='Churn Rate (%)',
-                        color_discrete_sequence=['#e74c3c'])
-        fig_tx.update_traces(textposition='outside', textfont=dict(color='#c5c6c7'))
-        fig_tx.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#c5c6c7', showlegend=False, yaxis_range=[0,110])
-        st.plotly_chart(fig_tx, use_container_width=True)
-        
-    with col_chart2:
-        st.subheader("Customer Balance Distribution")
-        # Overhauled from messy histogram to clean Violin Plot
-        fig_bal = px.violin(filtered_df, y="Balance", x="Exited", color="Exited", 
-                               box=True, points=False,
-                               labels={"Exited": "Churned (1=Yes, 0=No)"},
-                               color_discrete_map={0: '#66fcf1', 1: '#e74c3c'})
-        fig_bal.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#c5c6c7', showlegend=False)
-        st.plotly_chart(fig_bal, use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # --- Data Table: High-Risk Customers ---
-    st.subheader("Top 50 'High-Risk' Customers")
-    st.markdown("Users heavily impacted by payment failures, ranked by Live ML Prediction Risk.")
-    
-    # Add a pseudo-CustomerID for selection purposes
-    top_50_risk = top_50_risk.copy()
-    top_50_risk.reset_index(inplace=True)
-    top_50_risk['Customer_ID'] = top_50_risk.index.map(lambda x: f"CUST-{1000 + x}")
-    
-    # Move Customer_ID to front
-    cols = ['Customer_ID'] + [col for col in top_50_risk.columns if col != 'Customer_ID' and col != 'index']
-    top_50_risk = top_50_risk[cols]
-    
-    st.markdown('<div class="glass-container">', unsafe_allow_html=True)
-    st.dataframe(top_50_risk.drop(columns=['Exited']), use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    with tab2:
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="ai-alert-box">
+            <strong style="color: #3b82f6; font-size: 1.2rem;">AI Operational Alert:</strong><br>
+            <span style="font-size: 0.9rem; color: #94a3b8;">Gemini AI is analyzing your exact dashboard filters above and recommending an immediate course of action.</span><br><br>
+            {ai_insight}
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # --- Phase 5: Targeted Customer Recovery & AI Outreach ---
-    st.markdown('<div class="glass-container">', unsafe_allow_html=True)
-    st.subheader("AI-Powered Customer Recovery")
-    st.markdown("<p style='color: #c5c6c7;'>Select a high-risk customer from the table above to instantly generate a hyper-personalized retention outreach script.</p>", unsafe_allow_html=True)
-    
-    selected_cust_id = st.selectbox("Select Customer to Recover:", top_50_risk['Customer_ID'].tolist())
-    
-    if selected_cust_id:
-        cust_profile = top_50_risk[top_50_risk['Customer_ID'] == selected_cust_id].iloc[0]
+    with tab3:
+        st.markdown("<br>", unsafe_allow_html=True)
+        # --- Data Table: High-Risk Customers ---
+        st.subheader("Top 50 'High-Risk' Customers")
+        st.markdown("Users heavily impacted by payment failures, ranked by Live ML Prediction Risk.")
         
-        st.write(f"**Selected Profile:** {cust_profile['Geography']} | Age: {cust_profile['Age']} | Balance: ${cust_profile['Balance']:,.2f} | Failed TXs: {cust_profile['failed_transactions_last_30_days']} | **Churn Risk:** {cust_profile['Churn Risk (%)']}%")
+        # Add a pseudo-CustomerID for selection purposes
+        top_50_risk = top_50_risk.copy()
+        top_50_risk.reset_index(inplace=True)
+        top_50_risk['Customer_ID'] = top_50_risk.index.map(lambda x: f"CUST-{1000 + x}")
         
-        if st.button("Generate Personalized Recovery Email"):
-            with st.spinner("Gemini is drafting the outreach..."):
-                outreach_script = generate_customer_outreach_script(cust_profile)
-                st.success("Outreach Script Generated Successfully!")
-                st.text_area("Copy and paste to CRM:", value=outreach_script, height=250)
-    st.markdown('</div>', unsafe_allow_html=True)
+        # Move Customer_ID to front
+        cols = ['Customer_ID'] + [col for col in top_50_risk.columns if col != 'Customer_ID' and col != 'index']
+        top_50_risk = top_50_risk[cols]
+        
+        st.markdown('<div class="glass-container">', unsafe_allow_html=True)
+        st.dataframe(top_50_risk.drop(columns=['Exited']), use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # --- Phase 5: Targeted Customer Recovery & AI Outreach ---
+        st.markdown('<div class="glass-container">', unsafe_allow_html=True)
+        st.subheader("AI-Powered Customer Recovery")
+        st.markdown("<p style='color: #c5c6c7;'>Select a high-risk customer from the table above to instantly generate a hyper-personalized retention outreach script.</p>", unsafe_allow_html=True)
+        
+        selected_cust_id = st.selectbox("Select Customer to Recover:", top_50_risk['Customer_ID'].tolist())
+        
+        if selected_cust_id:
+            cust_profile = top_50_risk[top_50_risk['Customer_ID'] == selected_cust_id].iloc[0]
+            
+            st.write(f"**Selected Profile:** {cust_profile['Geography']} | Age: {cust_profile['Age']} | Balance: ${cust_profile['Balance']:,.2f} | Failed TXs: {cust_profile['failed_transactions_last_30_days']} | **Churn Risk:** {cust_profile['Churn Risk (%)']}%")
+            
+            if st.button("Generate Personalized Recovery Email"):
+                with st.spinner("Gemini is drafting the outreach..."):
+                    outreach_script = generate_customer_outreach_script(cust_profile)
+                    st.success("Outreach Script Generated Successfully!")
+                    st.text_area("Copy and paste to CRM:", value=outreach_script, height=250)
+        st.markdown('</div>', unsafe_allow_html=True)
