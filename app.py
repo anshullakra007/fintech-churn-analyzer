@@ -69,113 +69,66 @@ html, body, [class*="css"]  {
     font-family: 'Inter', sans-serif !important;
 }
 
-/* Clean, readable dark background with 3D moving data particles */
+/* Clean, flat dark background (Zinc 950) */
 .stApp {
-    background-color: #0b0c10;
-    overflow-x: hidden;
+    background-color: #09090b;
+    color: #f4f4f5;
 }
 
-.stApp::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: 
-        radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.05), transparent 25%);
-    z-index: -2;
-}
-
-.stApp::after {
-    content: '';
-    position: fixed;
-    top: -50%; left: -50%; width: 200%; height: 200%;
-    background-image: 
-        radial-gradient(2px 2px at 40px 60px, rgba(255,255,255,0.1) 50%, transparent),
-        radial-gradient(2px 2px at 20px 50px, rgba(255,255,255,0.1) 50%, transparent),
-        radial-gradient(3px 3px at 30px 100px, rgba(59,130,246,0.2) 50%, transparent),
-        radial-gradient(2px 2px at 90px 40px, rgba(255,255,255,0.1) 50%, transparent);
-    background-repeat: repeat;
-    background-size: 250px 250px;
-    animation: starfield 60s linear infinite;
-    z-index: -1;
-    opacity: 0.7;
-}
-
-@keyframes starfield {
-    0% { transform: translateY(0) rotate(0deg); }
-    100% { transform: translateY(-250px) rotate(5deg); }
-}
-
-/* Glassmorphism Containers */
+/* Solid Cards (Zinc 900) */
 .glass-container {
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: #18181b;
+    border-radius: 8px;
+    border: 1px solid #27272a;
     padding: 2rem;
     margin-bottom: 2rem;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.2s ease-in-out;
 }
 
 .glass-container:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.04);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+    border-color: #3f3f46;
 }
 
 /* AI Alert Box */
 .ai-alert-box {
-    background: rgba(15, 17, 26, 0.8);
-    border-left: 4px solid #3b82f6;
-    border-radius: 8px;
-    padding: 1.5rem;
+    background: #1e1b4b;
+    border-left: 4px solid #6366f1;
+    border-radius: 6px;
+    padding: 1.25rem;
     margin: 1rem 0;
-    box-shadow: 0 0 15px rgba(102, 252, 241, 0.1);
-    color: #e0e2e4;
-    font-size: 1.1rem;
-    line-height: 1.6;
-    transition: all 0.3s ease;
-    cursor: pointer;
+    color: #e0e7ff;
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
-.ai-alert-box:hover {
-    transform: translateX(2px);
-    box-shadow: -3px 3px 15px rgba(59, 130, 246, 0.1);
-    background: rgba(20, 22, 33, 0.9);
-}
-
-/* Neon KPIs (Metrics) */
+/* KPIs (Metrics) */
 div[data-testid="metric-container"] {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 1.5rem;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 8px;
+    padding: 1.25rem;
+    transition: all 0.2s ease;
 }
 
 div[data-testid="metric-container"]:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.04);
+    border-color: #3f3f46;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
 }
 
 div[data-testid="stMetricValue"] {
-    font-size: 2.2rem !important;
-    font-weight: 700 !important;
-    color: #ffffff !important;
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+    color: #fafafa !important;
 }
 
 div[data-testid="stMetricLabel"] {
-    font-size: 1.1rem !important;
-    font-weight: 600 !important;
-    color: #c5c6c7 !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: #a1a1aa !important;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 0.5px;
 }
 
 /* Sidebar styling */
@@ -193,21 +146,18 @@ h1, h2, h3 {
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>FinTech Customer Churn & Impact Analyzer</h1>", unsafe_allow_html=True)
-st.markdown("<p style='font-size: 1.1rem; color: #94a3b8; margin-bottom: 1rem;'>Monitor customer churn metrics and the operational impact of payment gateway failures.</p>", unsafe_allow_html=True)
+st.markdown("<h1>Customer Retention & Impact Analytics</h1>", unsafe_allow_html=True)
+st.markdown("<p style='font-size: 1.1rem; color: #a1a1aa; margin-bottom: 1rem;'>Monitor customer churn metrics and the operational impact of payment gateway failures.</p>", unsafe_allow_html=True)
 
-with st.expander("Quick Start Guide: How to use this Dashboard", expanded=False):
+with st.expander("Dashboard Documentation", expanded=False):
     st.markdown("""
-    **Welcome to the Active CRM Command Center!** This dashboard doesn't just show data—it predicts customer churn and helps you actively recover lost revenue.
-
-    **Step 1: Filter the Data (Sidebar)**
-    Use the sidebar controls on the left to zero in on specific customer segments. Watch how the overall *Revenue at Risk* changes as you adjust the 'Max Failed Transactions'.
-
-    **Step 2: Monitor AI Operational Alerts**
-    Below, the Google Gemini AI acts as your data analyst, reading the live KPIs and instantly writing a 3-sentence executive summary based on the exact data you filtered.
-
-    **Step 3: Run the ROI Simulator & Recover Customers**
-    At the bottom of the page is the **Top 50 High-Risk Customers** queue. Select a customer from the dropdown, and the AI will draft a hyper-personalized apology email. Use the *Intervention ROI Simulator* in the sidebar to calculate if giving them a $50 statement credit will actually save the company money!
+    **Overview**
+    This dashboard predicts customer churn and evaluates retention strategies.
+    
+    **Usage:**
+    1. **Data Filters:** Use the sidebar to isolate specific customer segments. Adjust the 'Max Failed Transactions' slider to observe the correlation with Revenue at Risk.
+    2. **AI Analysis:** The automated insights panel generates a real-time summary based on your active filters.
+    3. **Retention Simulator:** Select a high-risk customer from the bottom data table. Adjust the ROI simulator in the sidebar to calculate net revenue saved before dispatching a recovery email.
     """)
     st.markdown("<br>", unsafe_allow_html=True)
 
