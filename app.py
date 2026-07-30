@@ -120,13 +120,16 @@ def load_data():
 df = load_data()
 
 if not df.empty:
-    # --- Sidebar Filters ---
-    st.sidebar.header("Filter Customer Data")
-    st.sidebar.markdown("<p style='font-size: 0.9rem; color: #94a3b8; margin-top: -10px;'>Adjust these parameters to isolate user segments and see how technical friction impacts churn.</p>", unsafe_allow_html=True)
-    
-    age_range = st.sidebar.slider("Age Range", int(df['Age'].min()), int(df['Age'].max()), (int(df['Age'].min()), int(df['Age'].max())), help="Filter customers by their age to see demographic differences in churn.")
-    credit_range = st.sidebar.slider("Credit Score", int(df['CreditScore'].min()), int(df['CreditScore'].max()), (int(df['CreditScore'].min()), int(df['CreditScore'].max())), help="Isolate customers based on their financial standing.")
-    failed_tx = st.sidebar.slider("Max Failed Transactions (30 Days)", int(df['failed_transactions_last_30_days'].min()), int(df['failed_transactions_last_30_days'].max()), int(df['failed_transactions_last_30_days'].max()), help="CRITICAL METRIC: Lower this slider to see how reducing payment failures drastically lowers the 'Revenue at Risk'.")
+    # --- Main Page Filters ---
+    with st.expander("Filter Customer Data", expanded=False):
+        st.markdown("<p style='font-size: 0.9rem; color: #94a3b8; margin-top: -10px;'>Adjust these parameters to isolate user segments and see how technical friction impacts churn.</p>", unsafe_allow_html=True)
+        col_f1, col_f2, col_f3 = st.columns(3)
+        with col_f1:
+            age_range = st.slider("Age Range", int(df['Age'].min()), int(df['Age'].max()), (int(df['Age'].min()), int(df['Age'].max())), help="Filter customers by their age to see demographic differences in churn.")
+        with col_f2:
+            credit_range = st.slider("Credit Score", int(df['CreditScore'].min()), int(df['CreditScore'].max()), (int(df['CreditScore'].min()), int(df['CreditScore'].max())), help="Isolate customers based on their financial standing.")
+        with col_f3:
+            failed_tx = st.slider("Max Failed Transactions (30 Days)", int(df['failed_transactions_last_30_days'].min()), int(df['failed_transactions_last_30_days'].max()), int(df['failed_transactions_last_30_days'].max()), help="CRITICAL METRIC: Lower this slider to see how reducing payment failures drastically lowers the 'Revenue at Risk'.")
     
     # Apply Filters
     filtered_df = df[
@@ -160,21 +163,27 @@ if not df.empty:
         high_risk_df = filtered_df.sort_values(by=['Churn Risk (%)', 'Balance'], ascending=[False, False])
         top_50_risk = high_risk_df.head(50)
 
-        # --- Phase 5: Intervention ROI Simulator (Sidebar) ---
+        # --- Phase 5: Intervention ROI Simulator ---
         if nav_selection == "Recovery":
-            st.sidebar.markdown("---")
-            st.sidebar.header("Intervention ROI Simulator")
-            st.sidebar.markdown("<p style='font-size: 0.9rem; color: #94a3b8; margin-top: -10px;'>If we offer angry customers money to stay, do we still make a profit? Play with the numbers to find out.</p>", unsafe_allow_html=True)
-            retention_cost = st.sidebar.number_input("Cost of Retention Offer ($/user)", min_value=0, value=50, step=10, help="How much are you willing to spend (e.g. statement credit) to save a single customer?")
-            win_back_rate = st.sidebar.slider("Expected Win-Back Success Rate (%)", 0, 100, 40, help="If we send the apology email, what percentage of customers will actually decide to stay?")
+            st.subheader("Intervention ROI Simulator")
+            st.markdown("<p style='font-size: 0.9rem; color: #94a3b8; margin-top: -10px;'>If we offer angry customers money to stay, do we still make a profit? Play with the numbers to find out.</p>", unsafe_allow_html=True)
             
-            total_campaign_cost = len(top_50_risk) * retention_cost
-            projected_saved_revenue = (top_50_risk['Balance'].sum() * (win_back_rate / 100))
-            net_roi = projected_saved_revenue - total_campaign_cost
+            with st.container(border=True):
+                col_sim1, col_sim2 = st.columns(2)
+                with col_sim1:
+                    retention_cost = st.number_input("Cost of Retention Offer ($/user)", min_value=0, value=50, step=10, help="How much are you willing to spend (e.g. statement credit) to save a single customer?")
+                    win_back_rate = st.slider("Expected Win-Back Success Rate (%)", 0, 100, 40, help="If we send the apology email, what percentage of customers will actually decide to stay?")
+                
+                total_campaign_cost = len(top_50_risk) * retention_cost
+                projected_saved_revenue = (top_50_risk['Balance'].sum() * (win_back_rate / 100))
+                net_roi = projected_saved_revenue - total_campaign_cost
+                
+                with col_sim2:
+                    st.metric("Total Campaign Cost", f"${total_campaign_cost:,.0f}")
+                    st.metric("Projected Saved Revenue", f"${projected_saved_revenue:,.0f}")
+                    st.metric("Net ROI", f"${net_roi:,.0f}", delta=f"{win_back_rate}% Success Rate")
             
-            st.sidebar.metric("Total Campaign Cost", f"${total_campaign_cost:,.0f}")
-            st.sidebar.metric("Projected Saved Revenue", f"${projected_saved_revenue:,.0f}")
-            st.sidebar.metric("Net ROI", f"${net_roi:,.0f}", delta=f"{win_back_rate}% Success Rate")
+            st.markdown("---")
         
         # --- KPI Calculations ---
         total_customers = len(filtered_df)
