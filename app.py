@@ -9,7 +9,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     st.warning("GEMINI_API_KEY environment variable not set. AI insights will not be available.")
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
 def get_ai_recommendation(kpi_data):
     """Generates an executive summary using Gemini API."""
@@ -57,8 +57,95 @@ def generate_customer_outreach_script(customer_profile):
 # --- Phase 3: Streamlit App Configuration ---
 st.set_page_config(page_title="FinTech Churn & Impact Analyzer", page_icon="💸", layout="wide")
 
-st.title("💸 FinTech Customer Churn & Impact Analyzer")
-st.markdown("Monitor customer churn metrics and the operational impact of payment gateway failures.")
+# --- Custom CSS Injection (Glassmorphism & Neon Theme) ---
+st.markdown("""
+<style>
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
+/* Main Background and Typography */
+html, body, [class*="css"]  {
+    font-family: 'Outfit', sans-serif !important;
+}
+
+/* Gradient animated background */
+.stApp {
+    background: linear-gradient(-45deg, #0b0c10, #1f2833, #0b0c10, #171a21);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    color: #c5c6c7;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Glassmorphism Containers */
+.glass-container {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(102, 252, 241, 0.2);
+}
+
+/* AI Alert Neon Box */
+.ai-alert-box {
+    background: rgba(10, 10, 10, 0.6);
+    border-left: 5px solid #66fcf1;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: 0 0 15px rgba(102, 252, 241, 0.1);
+    color: #e0e2e4;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* Neon KPIs */
+div[data-testid="stMetricValue"] {
+    font-size: 2.5rem !important;
+    font-weight: 800 !important;
+    color: #66fcf1 !important;
+    text-shadow: 0 0 10px rgba(102, 252, 241, 0.3);
+}
+
+div[data-testid="stMetricLabel"] {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: #c5c6c7 !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Sidebar styling */
+section[data-testid="stSidebar"] {
+    background-color: rgba(11, 12, 16, 0.8) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Headers */
+h1, h2, h3 {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("<h1>💸 FinTech Customer Churn & Impact Analyzer</h1>", unsafe_allow_html=True)
+st.markdown("<p style='font-size: 1.2rem; color: #c5c6c7; margin-bottom: 2rem;'>Monitor customer churn metrics and the operational impact of payment gateway failures.</p>", unsafe_allow_html=True)
 
 # Load Data
 @st.cache_data
@@ -122,8 +209,14 @@ if not df.empty:
     with st.spinner("Generating AI Operational Insights..."):
         ai_insight = get_ai_recommendation(kpi_dict)
     
-    st.warning(f"**🤖 AI Operational Alert:**\n\n{ai_insight}")
-    st.markdown("---")
+    st.markdown(f"""
+    <div class="ai-alert-box">
+        <strong style="color: #66fcf1; font-size: 1.2rem;">🤖 AI Operational Alert:</strong><br><br>
+        {ai_insight}
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
 
     # --- KPI Display ---
     col1, col2, col3 = st.columns(3)
@@ -134,6 +227,7 @@ if not df.empty:
     st.markdown("---")
     
     # --- Visualizations ---
+    st.markdown('<div class="glass-container">', unsafe_allow_html=True)
     col_chart1, col_chart2 = st.columns(2)
     
     with col_chart1:
@@ -143,6 +237,7 @@ if not df.empty:
         fig_tx = px.bar(churn_by_tx, x='failed_transactions_last_30_days', y='Churn Rate (%)', 
                         labels={'failed_transactions_last_30_days': 'Failed Transactions'},
                         color='Churn Rate (%)', color_continuous_scale='Reds')
+        fig_tx.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#c5c6c7')
         st.plotly_chart(fig_tx, use_container_width=True)
         
     with col_chart2:
@@ -150,10 +245,12 @@ if not df.empty:
         fig_bal = px.histogram(filtered_df, x="Balance", color="Exited", 
                                marginal="box", barmode="overlay",
                                labels={"Exited": "Churned (1=Yes, 0=No)"},
-                               color_discrete_map={0: '#2ecc71', 1: '#e74c3c'})
+                               color_discrete_map={0: '#66fcf1', 1: '#e74c3c'})
+        fig_bal.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#c5c6c7')
         st.plotly_chart(fig_bal, use_container_width=True)
-        
-    st.markdown("---")
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
     
     # --- Data Table: High-Risk Customers ---
     st.subheader("⚠️ Top 50 'High-Risk' Customers (Highest Probable Churn)")
@@ -172,13 +269,16 @@ if not df.empty:
     cols = ['Customer_ID'] + [col for col in top_50_risk.columns if col != 'Customer_ID' and col != 'index']
     top_50_risk = top_50_risk[cols]
     
+    st.markdown('<div class="glass-container">', unsafe_allow_html=True)
     st.dataframe(top_50_risk.drop(columns=['Exited']), use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
     
     # --- Phase 5: Targeted Customer Recovery & AI Outreach ---
-    st.subheader("🤖 Phase 5: AI-Powered Customer Recovery")
-    st.markdown("Select a high-risk customer from the table above to instantly generate a hyper-personalized retention outreach script.")
+    st.markdown('<div class="glass-container">', unsafe_allow_html=True)
+    st.subheader("🤖 AI-Powered Customer Recovery")
+    st.markdown("<p style='color: #c5c6c7;'>Select a high-risk customer from the table above to instantly generate a hyper-personalized retention outreach script.</p>", unsafe_allow_html=True)
     
     selected_cust_id = st.selectbox("Select Customer to Recover:", top_50_risk['Customer_ID'].tolist())
     
@@ -192,3 +292,4 @@ if not df.empty:
                 outreach_script = generate_customer_outreach_script(cust_profile)
                 st.success("Outreach Script Generated Successfully!")
                 st.text_area("Copy and paste to CRM:", value=outreach_script, height=250)
+    st.markdown('</div>', unsafe_allow_html=True)
