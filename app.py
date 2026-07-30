@@ -232,6 +232,17 @@ if not df.empty:
             fig_bal.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#a1a1aa', showlegend=False)
             st.plotly_chart(fig_bal, use_container_width=True)
 
+        st.markdown("---")
+        st.subheader("Churn Risk by Customer Tenure")
+        churn_by_tenure = filtered_df.groupby('Tenure')['Exited'].mean().reset_index()
+        churn_by_tenure['Churn Rate (%)'] = (churn_by_tenure['Exited'] * 100).round(1)
+        fig_tenure = px.line(churn_by_tenure, x='Tenure', y='Churn Rate (%)', markers=True, 
+                             labels={'Tenure': 'Years with Bank (Tenure)'},
+                             color_discrete_sequence=['#8b5cf6'])
+        fig_tenure.update_traces(line=dict(width=3), marker=dict(size=8))
+        fig_tenure.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#a1a1aa', yaxis_range=[0,100])
+        st.plotly_chart(fig_tenure, use_container_width=True)
+
     elif nav_selection == "Insights":
         with st.spinner("Generating AI Operational Insights..."):
             ai_insight = get_ai_recommendation(kpi_dict)
