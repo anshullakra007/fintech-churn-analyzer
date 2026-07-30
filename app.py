@@ -69,10 +69,41 @@ html, body, [class*="css"]  {
     font-family: 'Inter', sans-serif !important;
 }
 
-/* Clean, readable dark background */
+/* Clean, readable dark background with 3D moving data particles */
 .stApp {
-    background: radial-gradient(circle at 10% 20%, #151821 0%, #0b0c10 100%);
-    color: #e2e8f0;
+    background-color: #0b0c10;
+    overflow-x: hidden;
+}
+
+.stApp::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: 
+        radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.05), transparent 25%);
+    z-index: -2;
+}
+
+.stApp::after {
+    content: '';
+    position: fixed;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background-image: 
+        radial-gradient(2px 2px at 40px 60px, rgba(255,255,255,0.1) 50%, transparent),
+        radial-gradient(2px 2px at 20px 50px, rgba(255,255,255,0.1) 50%, transparent),
+        radial-gradient(3px 3px at 30px 100px, rgba(59,130,246,0.2) 50%, transparent),
+        radial-gradient(2px 2px at 90px 40px, rgba(255,255,255,0.1) 50%, transparent);
+    background-repeat: repeat;
+    background-size: 250px 250px;
+    animation: starfield 60s linear infinite;
+    z-index: -1;
+    opacity: 0.7;
+}
+
+@keyframes starfield {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-250px) rotate(5deg); }
 }
 
 /* Glassmorphism Containers */
