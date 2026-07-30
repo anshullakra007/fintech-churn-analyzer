@@ -90,16 +90,12 @@ section[data-testid="stSidebar"] {
 st.title("Customer Retention Analytics")
 st.markdown("Monitor customer churn metrics and the operational impact of payment gateway failures.")
 
-# --- Portfolio / Recruiter Guide ---
-st.info("""
-👋 **Welcome! Here is a quick overview of this project:**
-- **What it does:** Predicts customer churn risk and calculates the financial ROI of retention campaigns.
-- **How I built it:** Features a **Live Random Forest ML Model** for real-time risk scoring, and integrates **Google Gemini 2.5 Flash** for automated operational insights and email drafting.
-- **How to use it:** 
-  1. Tweak the **Global Filters** below to see how technical friction (like failed payments) impacts churn.
-  2. Check the **🧠 AI Insights** tab to see Gemini's automated analysis of the active data.
-  3. Go to the **🛠️ Retention Console** to simulate campaign ROI and generate AI-powered recovery emails for at-risk users.
-""")
+# --- Architectural Overview ---
+st.markdown("""
+<div style="color: #a1a1aa; font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem;">
+This dashboard is an end-to-end FinTech churn prediction engine. It evaluates how operational friction (like payment gateway failures) impacts customer retention. The architecture uses a live <strong>Random Forest ML model</strong> to score churn risk in real-time based on the global filters below. Additionally, the Retention Console leverages <strong>Google Gemini 2.5</strong> to calculate campaign ROI and automatically draft personalized recovery workflows for at-risk accounts.
+</div>
+""", unsafe_allow_html=True)
 
 # Load Data
 @st.cache_data
