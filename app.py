@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 import google.generativeai as genai
 import os
+import joblib
 
 # --- Phase 4: Configure Gemini API ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -173,17 +174,38 @@ if not df.empty:
         (df['Age'].between(age_range[0], age_range[1])) &
         (df['CreditScore'].between(credit_range[0], credit_range[1])) &
         (df['failed_transactions_last_30_days'] <= failed_tx)
-    ]
+    ].copy()
     
-    # --- Phase 5: Intervention ROI Simulator (Sidebar) ---
-    st.sidebar.markdown("---")
-    st.sidebar.header("🎯 Intervention ROI Simulator")
-    retention_cost = st.sidebar.number_input("Cost of Retention Offer ($/user)", min_value=0, value=50, step=10)
-    win_back_rate = st.sidebar.slider("Expected Win-Back Success Rate (%)", 0, 100, 40)
-    
-    # Calculate potential ROI based on top 50 high-risk users
-    high_risk_df = filtered_df.sort_values(by=['failed_transactions_last_30_days', 'Balance'], ascending=[False, False])
-    top_50_risk = high_risk_df.head(50)
+    if filtered_df.empty:
+        st.warning("No customers match the selected filter criteria. Please adjust the sliders.")
+    else:
+        # --- Live ML Inference ---
+        # Load the trained Random Forest model to calculate actual churn probability
+        try:
+            rf_model = joblib.load('ml/churn_model.joblib')
+            expected_cols = joblib.load('ml/model_features.joblib')
+            
+            X = pd.get_dummies(filtered_df.drop('Exited', axis=1, errors='ignore'), columns=['Geography', 'Gender'], drop_first=True)
+            for col in expected_cols:
+                if col not in X.columns:
+                    X[col] = 0
+            X = X[expected_cols]
+            
+            # Predict actual probability
+            filtered_df['Churn Risk (%)'] = (rf_model.predict_proba(X)[:, 1] * 100).round(2)
+        except Exception as e:
+            st.error(f"Failed to load ML model. Ensure churn_model.joblib exists. Error: {str(e)}")
+            filtered_df['Churn Risk (%)'] = 0.0
+
+        # --- Phase 5: Intervention ROI Simulator (Sidebar) ---
+        st.sidebar.markdown("---")
+        st.sidebar.header("🎯 Intervention ROI Simulator")
+        retention_cost = st.sidebar.number_input("Cost of Retention Offer ($/user)", min_value=0, value=50, step=10)
+        win_back_rate = st.sidebar.slider("Expected Win-Back Success Rate (%)", 0, 100, 40)
+        
+        # Calculate potential ROI based on top 50 high-risk users using REAL ML Probability
+        high_risk_df = filtered_df.sort_values(by=['Churn Risk (%)', 'Balance'], ascending=[False, False])
+        top_50_risk = high_risk_df.head(50)
     total_campaign_cost = len(top_50_risk) * retention_cost
     projected_saved_revenue = (top_50_risk['Balance'].sum() * (win_back_rate / 100))
     net_roi = projected_saved_revenue - total_campaign_cost
@@ -233,20 +255,23 @@ if not df.empty:
     with col_chart1:
         st.subheader("Churn Rate vs. Failed Transactions")
         churn_by_tx = filtered_df.groupby('failed_transactions_last_30_days')['Exited'].mean().reset_index()
-        churn_by_tx['Churn Rate (%)'] = churn_by_tx['Exited'] * 100
+        churn_by_tx['Churn Rate (%)'] = (churn_by_tx['Exited'] * 100).round(1)
         fig_tx = px.bar(churn_by_tx, x='failed_transactions_last_30_days', y='Churn Rate (%)', 
                         labels={'failed_transactions_last_30_days': 'Failed Transactions'},
-                        color='Churn Rate (%)', color_continuous_scale='Reds')
-        fig_tx.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#c5c6c7')
+                        text='Churn Rate (%)',
+                        color_discrete_sequence=['#e74c3c'])
+        fig_tx.update_traces(textposition='outside', textfont=dict(color='#c5c6c7'))
+        fig_tx.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#c5c6c7', showlegend=False, yaxis_range=[0,110])
         st.plotly_chart(fig_tx, use_container_width=True)
         
     with col_chart2:
         st.subheader("Customer Balance Distribution")
-        fig_bal = px.histogram(filtered_df, x="Balance", color="Exited", 
-                               marginal="box", barmode="overlay",
+        # Overhauled from messy histogram to clean Violin Plot
+        fig_bal = px.violin(filtered_df, y="Balance", x="Exited", color="Exited", 
+                               box=True, points=False,
                                labels={"Exited": "Churned (1=Yes, 0=No)"},
                                color_discrete_map={0: '#66fcf1', 1: '#e74c3c'})
-        fig_bal.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#c5c6c7')
+        fig_bal.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#c5c6c7', showlegend=False)
         st.plotly_chart(fig_bal, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
     
@@ -254,11 +279,7 @@ if not df.empty:
     
     # --- Data Table: High-Risk Customers ---
     st.subheader("⚠️ Top 50 'High-Risk' Customers (Highest Probable Churn)")
-    st.markdown("Users heavily impacted by payment failures, ranked by Balance.")
-    
-    # In a real model, we would use predict_proba(). 
-    # For this dashboard, we approximate risk by failed transactions and balance.
-    # high_risk_df is already calculated above for the ROI simulator
+    st.markdown("Users heavily impacted by payment failures, ranked by Live ML Prediction Risk.")
     
     # Add a pseudo-CustomerID for selection purposes
     top_50_risk = top_50_risk.copy()
@@ -285,7 +306,7 @@ if not df.empty:
     if selected_cust_id:
         cust_profile = top_50_risk[top_50_risk['Customer_ID'] == selected_cust_id].iloc[0]
         
-        st.write(f"**Selected Profile:** {cust_profile['Geography']} | Age: {cust_profile['Age']} | Balance: ${cust_profile['Balance']:,.2f} | Failed TXs: {cust_profile['failed_transactions_last_30_days']}")
+        st.write(f"**Selected Profile:** {cust_profile['Geography']} | Age: {cust_profile['Age']} | Balance: ${cust_profile['Balance']:,.2f} | Failed TXs: {cust_profile['failed_transactions_last_30_days']} | **Churn Risk:** {cust_profile['Churn Risk (%)']}%")
         
         if st.button("Generate Personalized Recovery Email"):
             with st.spinner("Gemini is drafting the outreach..."):
