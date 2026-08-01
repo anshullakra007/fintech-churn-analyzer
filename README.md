@@ -27,6 +27,27 @@ This project serves as an **Active CRM Command Center**. Instead of just passive
 
 ## 🏗️ Architecture & Features
 
+```mermaid
+graph TD
+    User[Operations / CRM Manager] -->|Streamlit Interactive UI| Dash[Streamlit Web Application :app.py]
+    
+    subgraph "Data Engineering & ML Pipeline ml/"
+        Raw[Raw Bank Churn Dataset] -->|Feature Engineering: failed_transactions| Prep[Data Processing Engine]
+        Prep -->|scikit-learn Random Forest Classifier| Model[(Persisted ML Model :joblib)]
+    end
+    
+    Dash -->|Filter & Query High-Risk Cohort| Prep
+    Dash -->|Predict Churn Probability Score| Model
+    
+    subgraph "AI Root Cause & Intervention Engine"
+        Dash -->|KPI Context & Customer Risk Profile| Gemini[Google Gemini 1.5 Flash SDK]
+        Gemini -->|Executive Summary & Technical Debt RCA| Dash
+        Gemini -->|Hyper-Personalized Retention Outreach| Dash
+    end
+    
+    Dash -->|What-If Simulation| ROI[Intervention Net Revenue ROI Simulator]
+```
+
 This full-stack data product was engineered in 5 distinct phases:
 
 ### 1. Data Engineering & ML Pipeline
