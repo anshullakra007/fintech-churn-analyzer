@@ -17,7 +17,7 @@ In modern FinTech, customer churn is heavily influenced by technical friction. T
 ### Core Capabilities:
 1. **Predictive Modeling:** Uses a Scikit-Learn Random Forest model establishing a baseline **23.82% attrition rate** to categorize users by churn risk probability.
 2. **Advanced Data Engineering:** Powered by a local SQLite database utilizing complex SQL CTEs and Window Functions to dynamically query high-risk cohorts and identify **$314M in Revenue at Risk**.
-3. **Statistical Rigor:** Features a built-in A/B Testing Simulator (`scipy.stats`) to calculate the ROI, Cohort Retention, CLV, and statistical significance of retention campaigns.
+3. **Statistical Rigor:** Features a built-in A/B Testing Simulator (`statsmodels`) to calculate the ROI, Cohort Retention, CLV, and statistical significance of retention campaigns.
 4. **Automated AI Outreach:** Leverages Google Gemini to automatically draft hyper-personalized customer recovery emails based on the user's specific financial profile.
 
 ---
@@ -36,7 +36,7 @@ graph TD
     
     subgraph "SaaS Metrics & Statistics"
         Cohort[Seaborn Cohort Retention Matrix]
-        AB[SciPy Two-Proportion Z-Test Simulator]
+        AB[Statsmodels Two-Proportion Z-Test Simulator]
     end
     
     subgraph "BI & Reporting Pipeline"
