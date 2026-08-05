@@ -5,18 +5,28 @@ import seaborn as sns
 import numpy as np
 
 def render(filtered_df, kpi_dict, excel_data):
+    def format_currency(value):
+        if value >= 1_000_000_000:
+            return f"${value/1_000_000_000:.2f}B"
+        elif value >= 1_000_000:
+            return f"${value/1_000_000:.2f}M"
+        elif value >= 1_000:
+            return f"${value/1_000:.2f}K"
+        else:
+            return f"${value:,.2f}"
+
     st.markdown("<br>", unsafe_allow_html=True)
     # --- KPI Display ---
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Customers", f"{kpi_dict['total_customers']:,}")
     col2.metric("Overall Churn Rate", f"{kpi_dict['churn_rate']:.2f}%")
-    col3.metric("Revenue at Risk", f"${kpi_dict['revenue_risk']:,.2f}")
+    col3.metric("Revenue at Risk", format_currency(kpi_dict['revenue_risk']))
     
     # --- Phase 2: CLV Calculation ---
     retained_df = filtered_df[filtered_df['Exited'] == 0]
     # Assumed Margin * Balance * Tenure as a proxy for CLV
     clv_total = (retained_df['Balance'] * 0.10 * retained_df['Tenure']).sum()
-    col4.metric("Projected Retained CLV", f"${clv_total:,.2f}")
+    col4.metric("Projected Retained CLV", format_currency(clv_total))
     
     st.markdown("---")
     
