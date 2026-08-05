@@ -451,16 +451,34 @@ if limits is not None:
 
         with tab_bi:
             st.markdown("<br>", unsafe_allow_html=True)
-            st.subheader("Interactive BI Dashboard")
-            st.markdown("Embed your Tableau Public or Power BI dashboard here to impress stakeholders.")
-            
-            st.info("💡 **Integration Ready:** This module is configured to securely embed live Tableau or Power BI dashboards. Connect your Tableau Server credentials in the environment variables to render the live visualization.")
-            
-            st.markdown("""
-            <div style="display: flex; justify-content: center; align-items: center; height: 500px; background-color: #09090b; border-radius: 8px; border: 1px dashed #27272a; margin-top: 20px;">
-                <div style="text-align: center;">
-                    <h3 style="color: #a1a1aa; font-family: sans-serif; margin-bottom: 10px;">📊 Tableau Server Disconnected</h3>
-                    <p style="color: #71717a; font-family: sans-serif;">Please provide valid embedded credentials to load the BI interface.</p>
-                </div>
+            # --- Tableau Embed Example ---
+            tableau_html = """
+            <div class='tableauPlaceholder' id='viz1' style='position: relative; width: 100%; height: 800px;'>
+                <noscript><a href='#'><img alt='Dashboard' src='' style='border: none' /></a></noscript>
+                <object class='tableauViz'  style='display:none;'>
+                    <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> 
+                    <param name='embed_code_version' value='3' /> 
+                    <param name='site_root' value='' />
+                    <param name='name' value='FinTechChurnAnalysis/Sheet1' />
+                    <param name='tabs' value='yes' />
+                    <param name='toolbar' value='yes' />
+                    <param name='animate_transition' value='yes' />
+                    <param name='display_static_image' value='yes' />
+                    <param name='display_spinner' value='yes' />
+                    <param name='display_overlay' value='yes' />
+                    <param name='display_count' value='yes' />
+                    <param name='language' value='en-US' />
+                </object>
             </div>
-            """, unsafe_allow_html=True)
+            <script type='text/javascript'>
+                var divElement = document.getElementById('viz1');
+                var vizElement = divElement.getElementsByTagName('object')[0];
+                vizElement.style.width='100%';vizElement.style.height='800px';
+                var scriptElement = document.createElement('script');
+                scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+                vizElement.parentNode.insertBefore(scriptElement, vizElement);
+            </script>
+            """
+            
+            import streamlit.components.v1 as components
+            components.html(tableau_html, height=850, scrolling=True)
