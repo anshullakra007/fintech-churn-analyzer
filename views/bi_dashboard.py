@@ -17,12 +17,8 @@ def render(age_range, credit_range, failed_tx):
             <param name='animate_transition' value='yes' />
             <param name='display_static_image' value='yes' />
             <param name='display_spinner' value='yes' />
-            <param name='display_overlay' value='yes' />
             <param name='display_count' value='yes' />
             <param name='language' value='en-US' />
-            <param name='filter' value='Age={age_range[0]},{age_range[1]}' />
-            <param name='filter' value='CreditScore={credit_range[0]},{credit_range[1]}' />
-            <param name='filter' value='failed_transactions_last_30_days=0,{failed_tx}' />
         </object>
     </div>
     <script type='text/javascript'>
