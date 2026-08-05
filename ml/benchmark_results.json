@@ -1,0 +1,13 @@
+{
+    "data_generation_seconds_100k": 0.1171,
+    "model_load_seconds": 0.0171,
+    "inference_total_seconds_20k": 0.244,
+    "inference_ms_per_record": 0.0122,
+    "metrics": {
+        "accuracy": 0.9577,
+        "precision": 0.9521,
+        "recall": 0.8711,
+        "f1_score": 0.9098,
+        "roc_auc": 0.9799
+    }
+}

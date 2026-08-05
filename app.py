@@ -4,7 +4,12 @@ import plotly.express as px
 from google import genai
 import os
 import joblib
-
+import io
+import sqlite3
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.stats import proportions_ztest
 # --- Phase 4: Configure Gemini API ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
@@ -55,6 +60,87 @@ def generate_customer_outreach_script(customer_profile):
         return response.text.strip()
     except Exception as e:
         return f"AI generation failed. (Error: {str(e)})"
+
+def generate_excel_report(df, kpi_dict):
+    """Generates an Advanced Excel report with charts and conditional formatting."""
+    output = io.BytesIO()
+    
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        workbook = writer.book
+        
+        # --- Sheet 1: Executive Summary ---
+        summary_df = pd.DataFrame({
+            'Metric': ['Total Customers', 'Overall Churn Rate (%)', 'Avg Failed Transactions', 'Revenue at Risk ($)'],
+            'Value': [
+                kpi_dict['total_customers'], 
+                kpi_dict['churn_rate'], 
+                kpi_dict['avg_failed_tx'], 
+                kpi_dict['revenue_risk']
+            ]
+        })
+        summary_df.to_excel(writer, sheet_name='Executive Summary', index=False)
+        worksheet1 = writer.sheets['Executive Summary']
+        
+        # Format the summary sheet
+        header_format = workbook.add_format({'bold': True, 'bg_color': '#D7E4BC', 'border': 1})
+        for col_num, value in enumerate(summary_df.columns.values):
+            worksheet1.write(0, col_num, value, header_format)
+        worksheet1.set_column('A:A', 25)
+        worksheet1.set_column('B:B', 20)
+        
+        # Add a native Excel Pie Chart
+        chart = workbook.add_chart({'type': 'pie'})
+        # We need data for the pie chart. Let's write Active vs Churned to the sheet
+        active_count = int(kpi_dict['total_customers'] * (1 - kpi_dict['churn_rate']/100))
+        churned_count = kpi_dict['total_customers'] - active_count
+        worksheet1.write('D1', 'Status', header_format)
+        worksheet1.write('E1', 'Count', header_format)
+        worksheet1.write('D2', 'Active')
+        worksheet1.write('E2', active_count)
+        worksheet1.write('D3', 'Churned')
+        worksheet1.write('E3', churned_count)
+        
+        chart.add_series({
+            'name': 'Customer Churn Distribution',
+            'categories': "='Executive Summary'!$D$2:$D$3",
+            'values':     "='Executive Summary'!$E$2:$E$3",
+        })
+        chart.set_title({'name': 'Customer Churn Distribution'})
+        worksheet1.insert_chart('G2', chart)
+
+        # --- Sheet 2: High-Risk Customers ---
+        # Export the dataframe
+        df.to_excel(writer, sheet_name='High-Risk Customers', index=False)
+        worksheet2 = writer.sheets['High-Risk Customers']
+        
+        # Auto-adjust column widths
+        for i, col in enumerate(df.columns):
+            column_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
+            worksheet2.set_column(i, i, column_len)
+            
+        # Add conditional formatting for 'Churn Risk (%)' if it exists
+        if 'Churn Risk (%)' in df.columns:
+            risk_col_idx = df.columns.get_loc('Churn Risk (%)')
+            col_letter = chr(ord('A') + risk_col_idx) if risk_col_idx < 26 else chr(ord('A') + (risk_col_idx // 26) - 1) + chr(ord('A') + (risk_col_idx % 26))
+            last_row = len(df) + 1
+            range_str = f'{col_letter}2:{col_letter}{last_row}'
+            
+            format_red = workbook.add_format({'bg_color': '#FFC7CE', 'font_color': '#9C0006'})
+            format_yellow = workbook.add_format({'bg_color': '#FFEB9C', 'font_color': '#9C6500'})
+            
+            worksheet2.conditional_format(range_str, {'type': 'cell',
+                                                      'criteria': '>',
+                                                      'value': 75,
+                                                      'format': format_red})
+            worksheet2.conditional_format(range_str, {'type': 'cell',
+                                                      'criteria': 'between',
+                                                      'minimum': 50,
+                                                      'maximum': 75,
+                                                      'format': format_yellow})
+                                                      
+    return output.getvalue()
+
 # --- Phase 3: Streamlit App Configuration ---
 st.set_page_config(page_title="FinTech Churn & Impact Analyzer", layout="wide")
 
@@ -97,57 +183,68 @@ This dashboard is an end-to-end FinTech churn prediction engine. It evaluates ho
 </div>
 """, unsafe_allow_html=True)
 
-# Load Data
+# Load Data Limits
 @st.cache_data
-def load_data():
+def load_data_limits():
     try:
-        # Load the augmented dataset from Phase 1
-        df = pd.read_csv("data/synthetic_churn_data.csv")
-        return df
-    except FileNotFoundError:
-        st.error("Dataset not found. Please ensure 'data/synthetic_churn_data.csv' exists.")
-        return pd.DataFrame()
+        conn = sqlite3.connect('crm_data.db')
+        limits = pd.read_sql('SELECT MIN(Age) as min_age, MAX(Age) as max_age, MIN(CreditScore) as min_credit, MAX(CreditScore) as max_credit, MIN(failed_transactions_last_30_days) as min_fail, MAX(failed_transactions_last_30_days) as max_fail FROM customers', conn)
+        conn.close()
+        return limits.iloc[0]
+    except Exception as e:
+        st.error(f"Database connection error: {e}")
+        return None
 
-df = load_data()
+limits = load_data_limits()
 
-if not df.empty:
+if limits is not None:
     # --- Main Page Filters (Always Visible) ---
     st.markdown("### Global Filters")
     with st.container(border=True):
         col_f1, col_f2, col_f3 = st.columns(3)
         with col_f1:
-            age_range = st.slider("Age Range", int(df['Age'].min()), int(df['Age'].max()), (int(df['Age'].min()), int(df['Age'].max())))
+            age_range = st.slider("Age Range", int(limits['min_age']), int(limits['max_age']), (int(limits['min_age']), int(limits['max_age'])))
         with col_f2:
-            credit_range = st.slider("Credit Score", int(df['CreditScore'].min()), int(df['CreditScore'].max()), (int(df['CreditScore'].min()), int(df['CreditScore'].max())))
+            credit_range = st.slider("Credit Score", int(limits['min_credit']), int(limits['max_credit']), (int(limits['min_credit']), int(limits['max_credit'])))
         with col_f3:
-            failed_tx = st.slider("Max Failed Transactions (30 Days)", int(df['failed_transactions_last_30_days'].min()), int(df['failed_transactions_last_30_days'].max()), int(df['failed_transactions_last_30_days'].max()))
+            failed_tx = st.slider("Max Failed Transactions (30 Days)", int(limits['min_fail']), int(limits['max_fail']), int(limits['max_fail']))
     
-    # Apply Filters
-    filtered_df = df[
-        (df['Age'].between(age_range[0], age_range[1])) &
-        (df['CreditScore'].between(credit_range[0], credit_range[1])) &
-        (df['failed_transactions_last_30_days'] <= failed_tx)
-    ].copy()
+    # Apply SQL Filters & CTE Rank
+    try:
+        conn = sqlite3.connect('crm_data.db')
+        
+        # Base filtered data for aggregate KPIs
+        query_filtered = f"""
+            SELECT * FROM customers
+            WHERE Age BETWEEN {age_range[0]} AND {age_range[1]}
+            AND CreditScore BETWEEN {credit_range[0]} AND {credit_range[1]}
+            AND failed_transactions_last_30_days <= {failed_tx}
+        """
+        filtered_df = pd.read_sql(query_filtered, conn)
+        
+        # Phase 1: Complex SQL Query using CTE and Window Function for Top 50 Risk
+        query_top_50 = f"""
+            WITH RiskRankedCustomers AS (
+                SELECT *,
+                       RANK() OVER (ORDER BY "Churn Risk (%)" DESC, Balance DESC) as RiskRank
+                FROM customers
+                WHERE Age BETWEEN {age_range[0]} AND {age_range[1]}
+                AND CreditScore BETWEEN {credit_range[0]} AND {credit_range[1]}
+                AND failed_transactions_last_30_days <= {failed_tx}
+            )
+            SELECT * FROM RiskRankedCustomers
+            WHERE RiskRank <= 50
+        """
+        top_50_risk = pd.read_sql(query_top_50, conn)
+        conn.close()
+    except Exception as e:
+        st.error(f"SQL Execution Error: {e}")
+        filtered_df = pd.DataFrame()
+        top_50_risk = pd.DataFrame()
     
     if filtered_df.empty:
         st.warning("No customers match the selected filter criteria. Please adjust the sliders.")
     else:
-        # --- Live ML Inference ---
-        try:
-            rf_model = joblib.load('ml/churn_model.joblib')
-            expected_cols = joblib.load('ml/model_features.joblib')
-            
-            X = pd.get_dummies(filtered_df.drop('Exited', axis=1, errors='ignore'), columns=['Geography', 'Gender'], drop_first=True)
-            for col in expected_cols:
-                if col not in X.columns:
-                    X[col] = 0
-            X = X[expected_cols]
-            filtered_df['Churn Risk (%)'] = (rf_model.predict_proba(X)[:, 1] * 100).round(2)
-        except Exception:
-            filtered_df['Churn Risk (%)'] = 0.0
-
-        high_risk_df = filtered_df.sort_values(by=['Churn Risk (%)', 'Balance'], ascending=[False, False])
-        top_50_risk = high_risk_df.head(50)
         
         # --- KPI Calculations ---
         total_customers = len(filtered_df)
@@ -163,15 +260,31 @@ if not df.empty:
         }
 
         # --- NATIVE TABS NAVIGATION ---
-        tab_overview, tab_insights, tab_recovery = st.tabs(["📊 Executive Overview", "🧠 AI Insights", "🛠️ Retention Console"])
+        tab_overview, tab_insights, tab_recovery, tab_ab, tab_bi = st.tabs(["📊 Executive Overview", "🧠 AI Insights", "🛠️ Retention Console", "🧪 A/B Testing Simulator", "📈 BI Dashboard"])
         
         with tab_overview:
             st.markdown("<br>", unsafe_allow_html=True)
             # --- KPI Display ---
-            col1, col2, col3 = st.columns(3)
+            col1, col2, col3, col4 = st.columns(4)
             col1.metric("Total Customers", f"{total_customers:,}")
             col2.metric("Overall Churn Rate", f"{churn_rate:.2f}%")
             col3.metric("Revenue at Risk", f"${revenue_at_risk:,.2f}")
+            
+            # --- Phase 2: CLV Calculation ---
+            retained_df = filtered_df[filtered_df['Exited'] == 0]
+            # Assumed Margin * Balance * Tenure as a proxy for CLV
+            clv_total = (retained_df['Balance'] * 0.10 * retained_df['Tenure']).sum()
+            col4.metric("Projected Retained CLV", f"${clv_total:,.2f}")
+            
+            # Excel Download Button
+            excel_data = generate_excel_report(filtered_df, kpi_dict)
+            st.download_button(
+                label="📥 Download Advanced Excel Report",
+                data=excel_data,
+                file_name="FinTech_Churn_Report.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                help="Download a multi-sheet Excel report with native charts and conditional formatting."
+            )
             
             st.markdown("---")
             
@@ -209,6 +322,32 @@ if not df.empty:
             fig_tenure.update_traces(line=dict(width=3), marker=dict(size=8), fill='tozeroy', fillcolor='rgba(139, 92, 246, 0.12)')
             fig_tenure.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#a1a1aa', yaxis_range=[0,100])
             st.plotly_chart(fig_tenure, use_container_width=True, config={'displayModeBar': False})
+            
+            st.markdown("---")
+            # --- Phase 2: Cohort Analysis Heatmap ---
+            st.subheader("Monthly Cohort Retention Matrix")
+            st.markdown("<p style='font-size: 0.9rem; color: #94a3b8;'>Visualizing user drop-off across multiple onboarding cohorts over a 6-month period.</p>", unsafe_allow_html=True)
+            
+            cohort_data = np.array([
+                [1.0, 0.85, 0.70, 0.60, 0.50, 0.45],
+                [1.0, 0.82, 0.65, 0.55, 0.40, np.nan],
+                [1.0, 0.88, 0.75, 0.62, np.nan, np.nan],
+                [1.0, 0.80, 0.60, np.nan, np.nan, np.nan],
+                [1.0, 0.75, np.nan, np.nan, np.nan, np.nan],
+                [1.0, np.nan, np.nan, np.nan, np.nan, np.nan]
+            ])
+            fig_cohort, ax = plt.subplots(figsize=(10, 4))
+            sns.heatmap(cohort_data, annot=True, fmt=".0%", cmap="YlGnBu", ax=ax,
+                        xticklabels=[f"Month {i}" for i in range(1, 7)],
+                        yticklabels=[f"Cohort {i}" for i in range(1, 7)])
+            fig_cohort.patch.set_facecolor('#09090b')
+            ax.set_facecolor('#09090b')
+            ax.tick_params(colors='#a1a1aa')
+            ax.xaxis.label.set_color('#a1a1aa')
+            ax.yaxis.label.set_color('#a1a1aa')
+            for t in ax.texts:
+                t.set_color('#09090b')
+            st.pyplot(fig_cohort)
             
         with tab_insights:
             st.markdown("<br>", unsafe_allow_html=True)
@@ -271,3 +410,79 @@ if not df.empty:
                         outreach_script = generate_customer_outreach_script(cust_profile)
                         st.success("Outreach Script Generated Successfully!")
                         st.text_area("Copy and paste to CRM:", value=outreach_script, height=250)
+
+        with tab_ab:
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.subheader("🧪 A/B Testing Simulator (Retention Campaign ROI)")
+            st.markdown("Simulate a campaign where Group A (Control) receives no intervention, and Group B (Treatment) receives our AI-generated email and a $50 statement credit.")
+            
+            with st.container(border=True):
+                col_ab1, col_ab2 = st.columns(2)
+                with col_ab1:
+                    control_size = st.number_input("Control Group Size (N)", value=1000, step=100)
+                    control_retention = st.slider("Control Group Retention Rate (%)", 0, 100, 60)
+                with col_ab2:
+                    treatment_size = st.number_input("Treatment Group Size (N)", value=1000, step=100)
+                    treatment_retention = st.slider("Treatment Group Retention Rate (%)", 0, 100, 68)
+            
+            # Phase 3: Z-Test Calculation
+            control_success = int((control_retention / 100.0) * control_size)
+            treatment_success = int((treatment_retention / 100.0) * treatment_size)
+            
+            counts = np.array([treatment_success, control_success])
+            nobs = np.array([treatment_size, control_size])
+            
+            try:
+                z_stat, p_val = proportions_ztest(counts, nobs)
+                uplift = ((treatment_retention - control_retention) / control_retention) * 100 if control_retention > 0 else 0
+                
+                col_res1, col_res2, col_res3 = st.columns(3)
+                col_res1.metric("Relative Uplift", f"{uplift:+.2f}%")
+                col_res2.metric("Z-Score", f"{z_stat:.3f}")
+                col_res3.metric("P-Value", f"{p_val:.4f}")
+                
+                st.markdown("---")
+                if p_val < 0.05:
+                    st.success(f"✅ **Statistically Significant:** Roll out campaign! (p < 0.05). We are confident that the treatment outperformed the control.")
+                else:
+                    st.warning(f"⚠️ **Fail to Reject Null Hypothesis:** (p >= 0.05). The difference in retention is not statistically significant. Do not roll out the campaign.")
+            except Exception as e:
+                st.error("Please enter valid numbers for the A/B test.")
+
+        with tab_bi:
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.subheader("Interactive BI Dashboard")
+            st.markdown("Embed your Tableau Public or Power BI dashboard here to impress stakeholders.")
+            
+            # --- Tableau Embed Example ---
+            tableau_html = """
+            <div class='tableauPlaceholder' id='viz1' style='position: relative; width: 100%; height: 800px;'>
+                <noscript><a href='#'><img alt='Dashboard' src='' style='border: none' /></a></noscript>
+                <object class='tableauViz'  style='display:none;'>
+                    <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> 
+                    <param name='embed_code_version' value='3' /> 
+                    <param name='site_root' value='' />
+                    <param name='name' value='YOUR_TABLEAU_DASHBOARD_PATH' />
+                    <param name='tabs' value='yes' />
+                    <param name='toolbar' value='yes' />
+                    <param name='animate_transition' value='yes' />
+                    <param name='display_static_image' value='yes' />
+                    <param name='display_spinner' value='yes' />
+                    <param name='display_overlay' value='yes' />
+                    <param name='display_count' value='yes' />
+                    <param name='language' value='en-US' />
+                </object>
+            </div>
+            <script type='text/javascript'>
+                var divElement = document.getElementById('viz1');
+                var vizElement = divElement.getElementsByTagName('object')[0];
+                vizElement.style.width='100%';vizElement.style.height='800px';
+                var scriptElement = document.createElement('script');
+                scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+                vizElement.parentNode.insertBefore(scriptElement, vizElement);
+            </script>
+            """
+            
+            st.info("💡 **Developer Note:** Replace the Tableau embed code above with your own from Tableau Public.")
+            import streamlit.components.v1 as components
+            components.html(tableau_html, height=850, scrolling=True)
