@@ -10,28 +10,91 @@ st.set_page_config(page_title="FinTech Churn & Impact Analyzer", layout="wide")
 # --- Custom CSS Injection ---
 st.markdown("""
 <style>
-/* Clean, flat dark background (Zinc 950) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Premium Dark Background */
 .stApp {
-    background-color: #09090b;
+    background-color: #0a0a0c;
+    color: #e4e4e7;
+}
+
+/* Sidebar refinement */
+section[data-testid="stSidebar"] {
+    background-color: #121214 !important;
+    border-right: 1px solid #27272a;
+}
+section[data-testid="stSidebar"] .stRadio label {
+    font-weight: 500;
+    color: #a1a1aa;
+}
+
+/* Metric Cards */
+div[data-testid="metric-container"] {
+    background-color: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+div[data-testid="metric-container"]:hover {
+    transform: translateY(-2px);
+    border-color: #3f3f46;
+}
+div[data-testid="metric-container"] > div {
     color: #f4f4f5;
+}
+div[data-testid="metric-container"] label {
+    color: #a1a1aa !important;
+    font-size: 0.85rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Global Filters Container */
+div[data-testid="stVerticalBlock"] div[style*="border"] {
+    border-color: #27272a !important;
+    border-radius: 8px !important;
+    background-color: #0f0f11 !important;
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
 }
 
 /* AI Alert Box */
 .ai-alert-box {
-    background: #1e1b4b;
+    background: linear-gradient(145deg, #1e1b4b, #171717);
     border-left: 4px solid #6366f1;
-    border-radius: 6px;
-    padding: 1.25rem;
-    margin: 1rem 0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
     color: #e0e7ff;
-    font-size: 1rem;
-    line-height: 1.5;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
 }
 
-/* Sidebar styling */
-section[data-testid="stSidebar"] {
-    background-color: rgba(11, 12, 16, 0.85) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+/* Smooth Buttons */
+.stButton > button {
+    border-radius: 6px !important;
+    border: 1px solid #3f3f46 !important;
+    background-color: #18181b !important;
+    color: #e4e4e7 !important;
+    transition: all 0.2s ease !important;
+}
+.stButton > button:hover {
+    border-color: #6366f1 !important;
+    color: #ffffff !important;
+    background-color: #312e81 !important;
+}
+
+/* Subheaders */
+h1, h2, h3 {
+    color: #f4f4f5 !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.02em;
 }
 </style>
 """, unsafe_allow_html=True)
