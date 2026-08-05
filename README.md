@@ -10,10 +10,6 @@
 
 <br />
 
-## 📸 Screenshots
-
-![Dashboard Placeholder](https://via.placeholder.com/1000x500?text=Replace+this+with+a+screenshot+of+your+Streamlit+dashboard!)
-
 ## 📖 Overview
 
 In modern FinTech, customer churn is heavily influenced by technical friction. This project serves as an **Active CRM Command Center** that doesn't just passively report metrics, but actively predicts and mitigates revenue loss.
