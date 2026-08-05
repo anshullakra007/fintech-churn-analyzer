@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>💸 FinTech Customer Churn & Impact Analyzer</h1>
+  <h1>💸 AI-Powered Customer Analytics Platform</h1>
   <p><strong>An end-to-end Python CRM and analytics dashboard utilizing SQL, Machine Learning, and Statistical A/B Testing to mitigate churn.</strong></p>
   
   [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)

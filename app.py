@@ -5,7 +5,7 @@ import os
 import io
 import sqlite3
 
-st.set_page_config(page_title="FinTech Churn & Impact Analyzer", layout="wide")
+st.set_page_config(page_title="AI-Powered Customer Analytics Platform", layout="wide")
 
 # --- Custom CSS Injection ---
 st.markdown("""
@@ -223,7 +223,7 @@ def generate_excel_report(df, kpi_dict):
     return output.getvalue()
 
 
-st.title("Customer Retention Analytics")
+st.title("AI-Powered Customer Analytics Platform")
 st.markdown("Monitor customer churn metrics and the operational impact of payment gateway failures.")
 
 # --- Architectural Overview ---
