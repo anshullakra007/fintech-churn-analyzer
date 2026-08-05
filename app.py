@@ -125,7 +125,10 @@ def get_ai_recommendation(kpi_data):
         response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
         return response.text.strip()
     except Exception as e:
-        return f"AI Recommendation currently unavailable. Please check API configuration. (Error: {str(e)})"
+        error_msg = str(e)
+        if "429" in error_msg or "quota" in error_msg.lower():
+            return "⚠️ **API Rate Limit Exceeded (429):** You have exhausted the free tier Gemini API quota by moving the sliders too quickly. Please wait exactly 1 minute for your quota to reset, then try again."
+        return f"AI Recommendation currently unavailable. Please check API configuration. (Error: {error_msg})"
 
 @st.cache_data(show_spinner=False)
 def generate_customer_outreach_script(customer_profile):
