@@ -108,6 +108,7 @@ if not GEMINI_API_KEY:
     st.warning("GEMINI_API_KEY environment variable not set. AI insights will not be available.")
 client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 
+@st.cache_data(show_spinner=False)
 def get_ai_recommendation(kpi_data):
     """Generates an executive summary using Gemini API."""
     prompt = f"""
@@ -127,6 +128,7 @@ def get_ai_recommendation(kpi_data):
     except Exception as e:
         return f"AI Recommendation currently unavailable. Please check API configuration. (Error: {str(e)})"
 
+@st.cache_data(show_spinner=False)
 def generate_customer_outreach_script(customer_profile):
     """Generates a personalized outreach email for a specific customer."""
     prompt = f"""
@@ -153,6 +155,7 @@ def generate_customer_outreach_script(customer_profile):
     except Exception as e:
         return f"AI generation failed. (Error: {str(e)})"
 
+@st.cache_data(show_spinner=False)
 def generate_excel_report(df, kpi_dict):
     """Generates an Advanced Excel report with charts and conditional formatting."""
     output = io.BytesIO()
@@ -247,6 +250,34 @@ def load_data_limits():
 
 limits = load_data_limits()
 
+@st.cache_data(show_spinner=False)
+def load_filtered_data(age_min, age_max, credit_min, credit_max, failed_tx):
+    conn = sqlite3.connect('crm_data.db')
+    
+    query_filtered = f"""
+        SELECT * FROM customers
+        WHERE Age BETWEEN {age_min} AND {age_max}
+        AND CreditScore BETWEEN {credit_min} AND {credit_max}
+        AND failed_transactions_last_30_days <= {failed_tx}
+    """
+    f_df = pd.read_sql(query_filtered, conn)
+    
+    query_top_50 = f"""
+        WITH RiskRankedCustomers AS (
+            SELECT *,
+                   RANK() OVER (ORDER BY "Churn Risk (%)" DESC, Balance DESC) as RiskRank
+            FROM customers
+            WHERE Age BETWEEN {age_min} AND {age_max}
+            AND CreditScore BETWEEN {credit_min} AND {credit_max}
+            AND failed_transactions_last_30_days <= {failed_tx}
+        )
+        SELECT * FROM RiskRankedCustomers
+        WHERE RiskRank <= 50
+    """
+    t_50 = pd.read_sql(query_top_50, conn)
+    conn.close()
+    return f_df, t_50
+
 if limits is not None:
     # --- Sidebar Navigation ---
     st.sidebar.title("Navigation")
@@ -270,34 +301,9 @@ if limits is not None:
         with col_f3:
             failed_tx = st.slider("Max Failed Transactions (30 Days)", int(limits['min_fail']), int(limits['max_fail']), int(limits['max_fail']))
     
-    # Apply SQL Filters & CTE Rank
+    # Apply SQL Filters & CTE Rank using cached function
     try:
-        conn = sqlite3.connect('crm_data.db')
-        
-        # Base filtered data for aggregate KPIs
-        query_filtered = f"""
-            SELECT * FROM customers
-            WHERE Age BETWEEN {age_range[0]} AND {age_range[1]}
-            AND CreditScore BETWEEN {credit_range[0]} AND {credit_range[1]}
-            AND failed_transactions_last_30_days <= {failed_tx}
-        """
-        filtered_df = pd.read_sql(query_filtered, conn)
-        
-        # Phase 1: Complex SQL Query using CTE and Window Function for Top 50 Risk
-        query_top_50 = f"""
-            WITH RiskRankedCustomers AS (
-                SELECT *,
-                       RANK() OVER (ORDER BY "Churn Risk (%)" DESC, Balance DESC) as RiskRank
-                FROM customers
-                WHERE Age BETWEEN {age_range[0]} AND {age_range[1]}
-                AND CreditScore BETWEEN {credit_range[0]} AND {credit_range[1]}
-                AND failed_transactions_last_30_days <= {failed_tx}
-            )
-            SELECT * FROM RiskRankedCustomers
-            WHERE RiskRank <= 50
-        """
-        top_50_risk = pd.read_sql(query_top_50, conn)
-        conn.close()
+        filtered_df, top_50_risk = load_filtered_data(age_range[0], age_range[1], credit_range[0], credit_range[1], failed_tx)
     except Exception as e:
         st.error(f"SQL Execution Error: {e}")
         filtered_df = pd.DataFrame()
