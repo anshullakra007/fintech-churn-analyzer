@@ -187,12 +187,12 @@ limits = load_data_limits()
 if limits is not None:
     # --- Sidebar Navigation ---
     st.sidebar.title("Navigation")
-    selection = st.sidebar.radio("Go to module:", 
-                                 ["📊 Executive Overview", 
-                                  "🧠 AI Insights", 
-                                  "🛠️ Retention Console", 
-                                  "🧪 A/B Testing Simulator", 
-                                  "📈 BI Dashboard"])
+    selection = st.sidebar.radio("Menu:", 
+                                 ["Executive Overview", 
+                                  "AI Insights", 
+                                  "Retention Console", 
+                                  "A/B Testing Simulator", 
+                                  "BI Dashboard"])
     
     st.sidebar.markdown("---")
 
@@ -258,18 +258,18 @@ if limits is not None:
         }
 
         # Render corresponding view based on sidebar selection
-        if selection == "📊 Executive Overview":
+        if selection == "Executive Overview":
             excel_data = generate_excel_report(filtered_df, kpi_dict)
             executive_overview.render(filtered_df, kpi_dict, excel_data)
             
-        elif selection == "🧠 AI Insights":
+        elif selection == "AI Insights":
             ai_insights.render(kpi_dict, get_ai_recommendation)
             
-        elif selection == "🛠️ Retention Console":
+        elif selection == "Retention Console":
             retention_console.render(top_50_risk, generate_customer_outreach_script)
             
-        elif selection == "🧪 A/B Testing Simulator":
+        elif selection == "A/B Testing Simulator":
             ab_testing_simulator.render()
             
-        elif selection == "📈 BI Dashboard":
-            bi_dashboard.render()
+        elif selection == "BI Dashboard":
+            bi_dashboard.render(age_range, credit_range, failed_tx)

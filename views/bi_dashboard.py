@@ -1,10 +1,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-def render():
+def render(age_range, credit_range, failed_tx):
     st.markdown("<br>", unsafe_allow_html=True)
     # --- Tableau Embed Example ---
-    tableau_html = """
+    tableau_html = f"""
     <div class='tableauPlaceholder' id='viz1' style='position: relative; width: 100%; height: 800px;'>
         <noscript><a href='#'><img alt='Dashboard' src='' style='border: none' /></a></noscript>
         <object class='tableauViz'  style='display:none;'>
@@ -20,6 +20,9 @@ def render():
             <param name='display_overlay' value='yes' />
             <param name='display_count' value='yes' />
             <param name='language' value='en-US' />
+            <param name='filter' value='Age={age_range[0]},{age_range[1]}' />
+            <param name='filter' value='CreditScore={credit_range[0]},{credit_range[1]}' />
+            <param name='filter' value='failed_transactions_last_30_days=0,{failed_tx}' />
         </object>
     </div>
     <script type='text/javascript'>
