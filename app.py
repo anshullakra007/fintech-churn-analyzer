@@ -9,7 +9,7 @@ import sqlite3
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.stats import proportions_ztest
+from statsmodels.stats.proportion import proportions_ztest
 # --- Phase 4: Configure Gemini API ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
