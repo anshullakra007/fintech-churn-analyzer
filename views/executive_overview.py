@@ -93,15 +93,12 @@ def render(filtered_df, kpi_dict, excel_data):
         [1.0, 0.75, np.nan, np.nan, np.nan, np.nan],
         [1.0, np.nan, np.nan, np.nan, np.nan, np.nan]
     ])
-    fig_cohort, ax = plt.subplots(figsize=(10, 4))
-    sns.heatmap(cohort_data, annot=True, fmt=".0%", cmap="YlGnBu", ax=ax,
-                xticklabels=[f"Month {i}" for i in range(1, 7)],
-                yticklabels=[f"Cohort {i}" for i in range(1, 7)])
-    fig_cohort.patch.set_facecolor('#09090b')
-    ax.set_facecolor('#09090b')
-    ax.tick_params(colors='#a1a1aa')
-    ax.xaxis.label.set_color('#a1a1aa')
-    ax.yaxis.label.set_color('#a1a1aa')
-    for t in ax.texts:
-        t.set_color('#09090b')
-    st.pyplot(fig_cohort)
+    
+    fig_cohort = px.imshow(cohort_data, 
+                           labels=dict(x="Month", y="Cohort", color="Retention"),
+                           x=[f"Month {i}" for i in range(1, 7)],
+                           y=[f"Cohort {i}" for i in range(1, 7)],
+                           text_auto=".0%",
+                           color_continuous_scale="YlGnBu")
+    fig_cohort.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#a1a1aa')
+    st.plotly_chart(fig_cohort, use_container_width=True, config={'displayModeBar': False})
