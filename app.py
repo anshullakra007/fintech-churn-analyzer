@@ -10,6 +10,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 from statsmodels.stats.proportion import proportions_ztest
+
+st.set_page_config(page_title="FinTech Churn & Impact Analyzer", layout="wide")
+
 # --- Phase 4: Configure Gemini API ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
@@ -142,7 +145,6 @@ def generate_excel_report(df, kpi_dict):
     return output.getvalue()
 
 # --- Phase 3: Streamlit App Configuration ---
-st.set_page_config(page_title="FinTech Churn & Impact Analyzer", layout="wide")
 
 # --- Custom CSS Injection ---
 st.markdown("""
