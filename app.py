@@ -12,8 +12,9 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
-html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
+/* Apply Inter font safely without breaking Streamlit icons */
+html, body, p, h1, h2, h3, h4, h5, h6, label, .stMarkdown {
+    font-family: 'Inter', sans-serif !important;
 }
 
 /* Premium Dark Background */
@@ -40,13 +41,11 @@ div[data-testid="metric-container"] {
     padding: 1rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease;
+    overflow: visible !important;
 }
 div[data-testid="metric-container"]:hover {
     transform: translateY(-2px);
     border-color: #3f3f46;
-}
-div[data-testid="metric-container"] > div {
-    color: #f4f4f5;
 }
 div[data-testid="metric-container"] label {
     color: #a1a1aa !important;
