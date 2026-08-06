@@ -1,5 +1,5 @@
 <v l="">
- <1>💸 AI-w Cu Aly lf</1>
+ <1> AI-w Cu Aly lf</1>
  <><>A -- y CRM ly b ulz SQL, M L, Sl A/B T u.</></>
  
  [![y](://.l./b/y-3.10+-blu.v)](://www.y./)
@@ -10,7 +10,7 @@
 
 <b />
 
-## 📖 Ovvw
+##  Ovvw
 
 I FT, u u vly flu by l f. T v **Av CRM C C** ' u vly , bu vly vu l.
 
@@ -22,7 +22,7 @@ I FT, u u vly flu by l f. T v **Av CRM C C** ' u vly , bu vly vu l.
 
 ---
 
-## 🏗️ Au
+## ️ Au
 
 ```
  TD
@@ -57,7 +57,7 @@ I FT, u u vly flu by l f. T v **Av CRM C C** ' u vly , bu vly vu l.
 
 ---
 
-## 🚀 Ky Fu
+##  Ky Fu
 
 * **SQL I:** T l bu ll b, u l z qu f l-.
 * **Cu Lf Vlu & C Aly:** Tk CLV vulz u -ff v Sb .
@@ -67,7 +67,7 @@ I FT, u u vly flu by l f. T v **Av CRM C C** ' u vly , bu vly vu l.
 
 ---
 
-## 🛠️ Quk S
+## ️ Quk S
 
 1. **Ill D:**
  ```b
