@@ -85,7 +85,7 @@ graph TD
 
 ---
 
-## 🌟 STAR Story: fintech-churn-analyzer
+## Why I built this ?
 
 **Situation:** 
 While building modern software applications, developing structured and scalable solutions is critical. The requirement was to build and maintain `fintech-churn-analyzer` to address specific technical challenges and provide a robust implementation.
