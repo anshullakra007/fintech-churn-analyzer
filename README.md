@@ -84,21 +84,3 @@ graph TD
    ```bash
    streamlit run app.py
    ```
-
----
-
----
-
-## Why I built this ?
-
-### Situation
-In the fintech sector, customer retention is critical, but identifying which users are about to churn before they leave requires advanced predictive analytics.
-
-### Task
-I needed to analyze a massive dataset of user financial transactions and engagement metrics to build a predictive model for customer churn.
-
-### Action
-I utilized Pandas and Scikit-Learn to clean the dataset, engineer relevant features (like transaction frequency drops and login gaps), and train multiple classification models (Random Forest, XGBoost). I optimized hyperparameters to maximize the F1-score and reduce false negatives.
-
-### Result
-The final machine learning pipeline accurately identifies at-risk customers, providing actionable insights and feature importance metrics that can directly inform targeted retention campaigns.
