@@ -26,7 +26,7 @@ The final machine learning pipeline accurately identifies at-risk customers, pro
 
 ---
 
-##  Overview
+## Overview
 
 In modern FinTech, customer churn is heavily influenced by technical friction. This project serves as an Active CRM Command Center that doesn't just passively report metrics, but actively predicts and mitigates revenue loss.
 
@@ -38,7 +38,7 @@ In modern FinTech, customer churn is heavily influenced by technical friction. T
 
 ---
 
-## ️ Architecture
+## Architecture
 
 ```mermaid
 graph TD
@@ -73,17 +73,17 @@ graph TD
 
 ---
 
-##  Key Features
+## Key Features
 
-*   SQLite Integration: The application connects to a robust local database, executing complex parameterized queries to fetch data in real-time.
-*   Customer Lifetime Value & Cohort Analysis: Tracks projected retained CLV and visualizes user drop-off via Seaborn heatmaps.
-*   A/B Testing Simulator: Allows product managers to simulate control vs. treatment retention campaigns, computing Z-scores and P-values to determine statistical significance.
-*   Automated Advanced Excel Integration: One-click download of dynamically generated, multi-sheet `.xlsx` reports with native charts and automated conditional formatting.
-*   Embedded Tableau Dashboard: Seamlessly embeds interactive BI dashboards natively inside the Streamlit user interface.
+* SQLite Integration: The application connects to a robust local database, executing complex parameterized queries to fetch data in real-time.
+* Customer Lifetime Value & Cohort Analysis: Tracks projected retained CLV and visualizes user drop-off via Seaborn heatmaps.
+* A/B Testing Simulator: Allows product managers to simulate control vs. treatment retention campaigns, computing Z-scores and P-values to determine statistical significance.
+* Automated Advanced Excel Integration: One-click download of dynamically generated, multi-sheet `.xlsx` reports with native charts and automated conditional formatting.
+* Embedded Tableau Dashboard: Seamlessly embeds interactive BI dashboards natively inside the Streamlit user interface.
 
 ---
 
-## ️ Quick Start
+## Quick Start
 
 1. Install Dependencies:
    ```bash
