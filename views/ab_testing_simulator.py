@@ -45,14 +45,14 @@ def render():
         if p_val < 0.05:
             st.markdown("""
             <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 8px;">
-                <h4 style="color: #10b981; margin-top: 0; font-size: 1.2rem;">✅ Statistically Significant (p < 0.05)</h4>
+                <h4 style="color: #10b981; margin-top: 0; font-size: 1.2rem;">Statistically Significant (p < 0.05)</h4>
                 <p style="color: #d1fae5; margin-bottom: 0;">We are highly confident that the intervention outperformed the baseline. The risk of this being a false positive is less than 5%. <strong>Recommendation: Proceed with full campaign rollout.</strong></p>
             </div>
             """, unsafe_allow_html=True)
         else:
             st.markdown("""
             <div style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 1.5rem; border-radius: 8px;">
-                <h4 style="color: #f59e0b; margin-top: 0; font-size: 1.2rem;">⚠️ Not Statistically Significant (p ≥ 0.05)</h4>
+                <h4 style="color: #f59e0b; margin-top: 0; font-size: 1.2rem;">Not Statistically Significant (p ≥ 0.05)</h4>
                 <p style="color: #fef3c7; margin-bottom: 0;">The difference in retention might just be statistical noise. We cannot confidently attribute the uplift to the intervention. <strong>Recommendation: Do not roll out. Redesign the offer or increase sample size.</strong></p>
             </div>
             """, unsafe_allow_html=True)

@@ -77,7 +77,7 @@ def render(top_50_risk, generate_outreach_func):
             </div>
             """, unsafe_allow_html=True)
             
-            if st.button("🪄 Draft Personalized Email", type="primary"):
+            if st.button("Draft Personalized Email", type="primary"):
                 with st.spinner("Analyzing the user's friction points and drafting..."):
                     outreach_script = generate_outreach_func(cust_profile)
                     

@@ -32,7 +32,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     st.markdown("""
     <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; padding: 0.8rem 1rem; color: #fcd34d; font-size: 0.9rem; text-align: center; margin-bottom: 2rem;">
-        <span style="font-weight: 500;">⚠️ API Key Missing:</span> The <code>GEMINI_API_KEY</code> environment variable is not set. AI-driven insights will be disabled.
+        <span style="font-weight: 500;">API Key Missing:</span> The <code>GEMINI_API_KEY</code> environment variable is not set. AI-driven insights will be disabled.
     </div>
     """, unsafe_allow_html=True)
 client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
@@ -57,7 +57,7 @@ def get_ai_recommendation(kpi_data):
     except Exception as e:
         error_msg = str(e)
         if "429" in error_msg or "quota" in error_msg.lower():
-            return "⚠️ **API Rate Limit Exceeded (429):** You have exhausted the free tier Gemini API quota by moving the sliders too quickly. Please wait exactly 1 minute for your quota to reset, then try again."
+            return "**API Rate Limit Exceeded (429):** You have exhausted the free tier Gemini API quota by moving the sliders too quickly. Please wait exactly 1 minute for your quota to reset, then try again."
         return f"AI Recommendation currently unavailable. Please check API configuration. (Error: {error_msg})"
 
 @st.cache_data(show_spinner=False)
@@ -164,7 +164,7 @@ st.markdown("Understand who is at risk of leaving, visualize operational frictio
 # --- Architectural Overview ---
 st.markdown("""
 <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); color: #a1a1aa; font-size: 0.95rem; font-weight: 300; line-height: 1.6; margin-bottom: 2rem; text-align: center; max-width: 900px; margin-left: auto; margin-right: auto;">
-👋 <strong>Welcome.</strong> This isn't just a dashboard; it's a proactive churn engine. As you adjust the global filters below, a <strong>Random Forest ML model</strong> instantly recalculates the flight risk of every user based on their friction points (like failed payments). Then, our integrated <strong>Gemini 2.0</strong> assistant drafts personalized recovery plans to win them back. Let's get started.
+<strong>Welcome.</strong> This isn't just a dashboard; it's a proactive churn engine. As you adjust the global filters below, a <strong>Random Forest ML model</strong> instantly recalculates the flight risk of every user based on their friction points (like failed payments). Then, our integrated <strong>Gemini 2.0</strong> assistant drafts personalized recovery plans to win them back. Let's get started.
 </div>
 """, unsafe_allow_html=True)
 
@@ -220,7 +220,7 @@ if limits is not None:
         selection = "Executive Overview"
 
     # --- Collapsible Filters ---
-    with st.expander("⚙️ Adjust Audience Parameters"):
+    with st.expander("Adjust Audience Parameters"):
         st.markdown("<p style='color: #a1a1aa; font-size: 0.9rem;'>Fine-tune the data slice. Our Random Forest model will dynamically recalculate flight risks in real-time.</p>", unsafe_allow_html=True)
         col_f1, col_f2, col_f3 = st.columns(3)
         with col_f1:

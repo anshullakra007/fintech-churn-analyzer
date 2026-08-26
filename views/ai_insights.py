@@ -58,7 +58,7 @@ def render(kpi_dict, get_ai_recommendation_func):
     
     st.markdown("""
     <div class="ai-hero">
-        <div class="ai-title">✨ Gemini Operational Strategist</div>
+        <div class="ai-title">Gemini Operational Strategist</div>
         <div class="ai-subtitle">
             Don't just stare at the data. Let Gemini 2.0 instantly analyze your current audience filters and give you three bulletproof action items.
         </div>
