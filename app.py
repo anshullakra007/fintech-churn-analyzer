@@ -5,96 +5,22 @@ import os
 import io
 import sqlite3
 
-st.set_page_config(page_title="AI-Powered Customer Analytics Platform", layout="wide")
+st.set_page_config(page_title="AI-Powered Customer Analytics Platform", layout="wide", initial_sidebar_state="collapsed")
 
-# --- Custom CSS Injection ---
+# --- Premium Custom CSS Injection ---
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-/* Apply Inter font safely without breaking Streamlit icons */
-html, body, p, h1, h2, h3, h4, h5, h6, label, .stMarkdown {
-    font-family: 'Inter', sans-serif !important;
-}
-
-/* Premium Dark Background */
-.stApp {
-    background-color: #0a0a0c;
-    color: #e4e4e7;
+/* Apply modern typography globally */
+html, body, p, h1, h2, h3, h4, h5, h6, label, .stMarkdown, .stText, span {
+    font-family: 'Outfit', sans-serif !important;
 }
 
-/* Sidebar refinement */
-section[data-testid="stSidebar"] {
-    background-color: #121214 !important;
-    border-right: 1px solid #27272a;
-}
-section[data-testid="stSidebar"] .stRadio label {
-    font-weight: 500;
-    color: #a1a1aa;
-}
+/* Hide Sidebar Completely */
+[data-testid="collapsedControl"] { display: none !important; }
+section[data-testid="stSidebar"] { display: none !important; }
 
-/* Metric Cards */
-div[data-testid="metric-container"] {
-    background-color: #18181b;
-    border: 1px solid #27272a;
-    border-radius: 8px;
-    padding: 1rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease;
-    overflow: visible !important;
-}
-div[data-testid="metric-container"]:hover {
-    transform: translateY(-2px);
-    border-color: #3f3f46;
-}
-div[data-testid="metric-container"] label {
-    color: #a1a1aa !important;
-    font-size: 0.85rem !important;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-/* Global Filters Container */
-div[data-testid="stVerticalBlock"] div[style*="border"] {
-    border-color: #27272a !important;
-    border-radius: 8px !important;
-    background-color: #0f0f11 !important;
-    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
-}
-
-/* AI Alert Box */
-.ai-alert-box {
-    background: linear-gradient(145deg, #1e1b4b, #171717);
-    border-left: 4px solid #6366f1;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin: 1.5rem 0;
-    color: #e0e7ff;
-    font-size: 1.05rem;
-    line-height: 1.6;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
-}
-
-/* Smooth Buttons */
-.stButton > button {
-    border-radius: 6px !important;
-    border: 1px solid #3f3f46 !important;
-    background-color: #18181b !important;
-    color: #e4e4e7 !important;
-    transition: all 0.2s ease !important;
-}
-.stButton > button:hover {
-    border-color: #6366f1 !important;
-    color: #ffffff !important;
-    background-color: #312e81 !important;
-}
-
-/* Subheaders */
-h1, h2, h3 {
-    color: #f4f4f5 !important;
-    font-weight: 500 !important;
-    letter-spacing: -0.02em;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -104,7 +30,11 @@ from views import executive_overview, ai_insights, retention_console, ab_testing
 # --- Phase 4: Configure Gemini API ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
-    st.warning("GEMINI_API_KEY environment variable not set. AI insights will not be available.")
+    st.markdown("""
+    <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; padding: 0.8rem 1rem; color: #fcd34d; font-size: 0.9rem; text-align: center; margin-bottom: 2rem;">
+        <span style="font-weight: 500;">⚠️ API Key Missing:</span> The <code>GEMINI_API_KEY</code> environment variable is not set. AI-driven insights will be disabled.
+    </div>
+    """, unsafe_allow_html=True)
 client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 
 @st.cache_data(show_spinner=False)
@@ -228,13 +158,13 @@ def generate_excel_report(df, kpi_dict):
     return output.getvalue()
 
 
-st.title("AI-Powered Customer Analytics Platform")
-st.markdown("Monitor customer churn metrics and the operational impact of payment gateway failures.")
+st.title("Customer Experience & Retention Hub")
+st.markdown("Understand who is at risk of leaving, visualize operational friction, and act on AI-driven insights.")
 
 # --- Architectural Overview ---
 st.markdown("""
-<div style="color: #a1a1aa; font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem;">
-This dashboard is an end-to-end FinTech churn prediction engine. It evaluates how operational friction (like payment gateway failures) impacts customer retention. The architecture uses a live <strong>Random Forest ML model</strong> to score churn risk in real-time based on the global filters below. Additionally, the Retention Console leverages <strong>Google Gemini 2.5</strong> to calculate campaign ROI and automatically draft personalized recovery workflows for at-risk accounts.
+<div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); color: #a1a1aa; font-size: 0.95rem; font-weight: 300; line-height: 1.6; margin-bottom: 2rem; text-align: center; max-width: 900px; margin-left: auto; margin-right: auto;">
+👋 <strong>Welcome.</strong> This isn't just a dashboard; it's a proactive churn engine. As you adjust the global filters below, a <strong>Random Forest ML model</strong> instantly recalculates the flight risk of every user based on their friction points (like failed payments). Then, our integrated <strong>Gemini 2.5</strong> assistant drafts personalized recovery plans to win them back. Let's get started.
 </div>
 """, unsafe_allow_html=True)
 
@@ -281,20 +211,17 @@ def load_filtered_data(age_min, age_max, credit_min, credit_max, failed_tx):
     return f_df, t_50
 
 if limits is not None:
-    # --- Sidebar Navigation ---
-    st.sidebar.title("Navigation")
-    selection = st.sidebar.radio("Menu:", 
-                                 ["Executive Overview", 
-                                  "AI Insights", 
-                                  "Retention Console", 
-                                  "A/B Testing Simulator", 
-                                  "BI Dashboard"])
-    
-    st.sidebar.markdown("---")
+    # --- Native Pill Navigation ---
+    selection = st.pills("Navigation", 
+                         options=["Executive Overview", "AI Insights", "Retention Console", "A/B Testing Simulator", "BI Dashboard"],
+                         default="Executive Overview",
+                         label_visibility="collapsed")
+    if not selection:
+        selection = "Executive Overview"
 
-    # --- Main Page Filters (Always Visible) ---
-    st.markdown("### Global Filters")
-    with st.container(border=True):
+    # --- Collapsible Filters ---
+    with st.expander("⚙️ Adjust Audience Parameters"):
+        st.markdown("<p style='color: #a1a1aa; font-size: 0.9rem;'>Fine-tune the data slice. Our Random Forest model will dynamically recalculate flight risks in real-time.</p>", unsafe_allow_html=True)
         col_f1, col_f2, col_f3 = st.columns(3)
         with col_f1:
             age_range = st.slider("Age Range", int(limits['min_age']), int(limits['max_age']), (int(limits['min_age']), int(limits['max_age'])))
