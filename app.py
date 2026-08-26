@@ -52,7 +52,7 @@ def get_ai_recommendation(kpi_data):
     try:
         if not client:
             return "AI Recommendation currently unavailable. API Key missing."
-        response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
+        response = client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
         return response.text.strip()
     except Exception as e:
         error_msg = str(e)
@@ -82,7 +82,7 @@ def generate_customer_outreach_script(customer_profile):
     try:
         if not client:
             return "AI generation failed. API Key missing."
-        response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
+        response = client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
         return response.text.strip()
     except Exception as e:
         return f"AI generation failed. (Error: {str(e)})"
