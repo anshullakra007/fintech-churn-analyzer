@@ -39,9 +39,9 @@ def render(filtered_df, kpi_dict, excel_data):
         plot_bgcolor='rgba(0,0,0,0)', 
         font_color='#94a3b8', 
         showlegend=False,
-        margin=dict(l=10, r=10, t=40, b=20),
-        xaxis=dict(showgrid=False, zeroline=False, title_font=dict(size=13, color='#64748b')),
-        yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.03)', zeroline=False, title_font=dict(size=13, color='#64748b'))
+        margin=dict(t=40, b=30),
+        xaxis=dict(showgrid=False, zeroline=False, title_font=dict(size=14, color='#e2e8f0'), tickfont=dict(color='#a1a1aa')),
+        yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)', zeroline=False, title_font=dict(size=14, color='#e2e8f0'), tickfont=dict(color='#a1a1aa'))
     )
 
     col_chart1, col_chart2 = st.columns(2)

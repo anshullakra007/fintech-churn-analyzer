@@ -13,7 +13,7 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 /* Apply modern typography globally */
-html, body, p, h1, h2, h3, h4, h5, h6, label, .stMarkdown, .stText, span {
+html, body, p, h1, h2, h3, h4, h5, h6, label, .stMarkdown, .stText {
     font-family: 'Outfit', sans-serif !important;
 }
 
