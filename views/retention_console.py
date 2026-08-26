@@ -58,7 +58,7 @@ def render(top_50_risk, generate_outreach_func):
     st.markdown("<br><hr style='border-color: rgba(255,255,255,0.05);'><br>", unsafe_allow_html=True)
     
     with st.chat_message("assistant"):
-        st.write("Pick any user from the roster above. I will use Gemini 2.5 to analyze their friction points and draft a highly personalized apology and retention offer.")
+        st.write("Pick any user from the roster above. I will use Gemini 2.0 to analyze their friction points and draft a highly personalized apology and retention offer.")
     
     with st.container(border=True):
         selected_cust_id = st.selectbox("Select a User to Recover:", top_50_risk_disp['Customer_ID'].tolist())

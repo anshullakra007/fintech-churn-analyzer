@@ -164,7 +164,7 @@ st.markdown("Understand who is at risk of leaving, visualize operational frictio
 # --- Architectural Overview ---
 st.markdown("""
 <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); color: #a1a1aa; font-size: 0.95rem; font-weight: 300; line-height: 1.6; margin-bottom: 2rem; text-align: center; max-width: 900px; margin-left: auto; margin-right: auto;">
-👋 <strong>Welcome.</strong> This isn't just a dashboard; it's a proactive churn engine. As you adjust the global filters below, a <strong>Random Forest ML model</strong> instantly recalculates the flight risk of every user based on their friction points (like failed payments). Then, our integrated <strong>Gemini 2.5</strong> assistant drafts personalized recovery plans to win them back. Let's get started.
+👋 <strong>Welcome.</strong> This isn't just a dashboard; it's a proactive churn engine. As you adjust the global filters below, a <strong>Random Forest ML model</strong> instantly recalculates the flight risk of every user based on their friction points (like failed payments). Then, our integrated <strong>Gemini 2.0</strong> assistant drafts personalized recovery plans to win them back. Let's get started.
 </div>
 """, unsafe_allow_html=True)
 
