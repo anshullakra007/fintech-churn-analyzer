@@ -15,21 +15,13 @@ def render(filtered_df, kpi_dict, excel_data):
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # --- Humanized Introduction ---
-    with st.chat_message("assistant"):
-        st.write(f"I've analyzed the **{kpi_dict['total_customers']:,}** users matching your criteria. Right now, we're looking at a **{kpi_dict['churn_rate']:.2f}% flight risk**, which puts **{format_currency(kpi_dict['revenue_risk'])}** in immediate jeopardy. Here's how the friction points break down.")
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
     # --- KPI Display ---
     retained_df = filtered_df[filtered_df['Exited'] == 0]
     clv_total = (retained_df['Balance'] * 0.10 * retained_df['Tenure']).sum()
 
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Users Analyzed", f"{kpi_dict['total_customers']:,}")
-    col2.metric("Flight Risk (Churn)", f"{kpi_dict['churn_rate']:.2f}%")
-    col3.metric("Revenue on the Line", format_currency(kpi_dict['revenue_risk']))
-    col4.metric("Lifetime Value (Retained)", format_currency(clv_total))
+    # --- Humanized Introduction ---
+    with st.chat_message("assistant"):
+        st.write(f"Good morning. I've finished analyzing the **{kpi_dict['total_customers']:,}** users matching your parameters. Currently, we are tracking a **{kpi_dict['churn_rate']:.2f}% flight risk**, meaning approximately **{format_currency(kpi_dict['revenue_risk'])}** in revenue is in immediate jeopardy. However, our securely retained users still project a healthy lifetime value of **{format_currency(clv_total)}**. Here's a breakdown of the behavioral friction pushing them away.")
     
     st.markdown("<br><br>", unsafe_allow_html=True)
     
@@ -47,8 +39,8 @@ def render(filtered_df, kpi_dict, excel_data):
     col_chart1, col_chart2 = st.columns(2)
     
     with col_chart1:
-        st.markdown("<h3 style='font-size: 1.2rem; color: #e4e4e7;'>Friction vs. Flight Risk</h3>", unsafe_allow_html=True)
-        st.markdown("<p style='font-size: 0.85rem; color: #71717a; margin-top: -10px;'>How failed transactions drive users away.</p>", unsafe_allow_html=True)
+        st.markdown("<h3 style='font-size: 1.2rem; color: #e4e4e7;'>Does operational friction actually drive users away?</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 0.85rem; color: #71717a; margin-top: -10px;'>Examining how technical failures correlate directly with account closure.</p>", unsafe_allow_html=True)
         
         churn_by_tx = filtered_df.groupby('failed_transactions_last_30_days')['Exited'].mean().reset_index()
         churn_by_tx['Churn Rate (%)'] = (churn_by_tx['Exited'] * 100).round(1)
@@ -64,8 +56,8 @@ def render(filtered_df, kpi_dict, excel_data):
         st.plotly_chart(fig_tx, width='stretch', config={'displayModeBar': False})
         
     with col_chart2:
-        st.markdown("<h3 style='font-size: 1.2rem; color: #e4e4e7;'>Wealth Distribution</h3>", unsafe_allow_html=True)
-        st.markdown("<p style='font-size: 0.85rem; color: #71717a; margin-top: -10px;'>Comparing balances between retained and churned users.</p>", unsafe_allow_html=True)
+        st.markdown("<h3 style='font-size: 1.2rem; color: #e4e4e7;'>Are we losing our most valuable accounts?</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 0.85rem; color: #71717a; margin-top: -10px;'>Comparing the wealth held by loyal customers versus those packing their bags.</p>", unsafe_allow_html=True)
         
         fig_bal = px.violin(filtered_df, y="Balance", x="Exited", color="Exited", 
                                box=True, points=False,
@@ -82,8 +74,8 @@ def render(filtered_df, kpi_dict, excel_data):
     col_chart3, col_chart4 = st.columns(2)
     
     with col_chart3:
-        st.markdown("<h3 style='font-size: 1.2rem; color: #e4e4e7;'>Loyalty Curve</h3>", unsafe_allow_html=True)
-        st.markdown("<p style='font-size: 0.85rem; color: #71717a; margin-top: -10px;'>Churn probability based on years with the bank.</p>", unsafe_allow_html=True)
+        st.markdown("<h3 style='font-size: 1.2rem; color: #e4e4e7;'>When does loyalty peak, and when does it break?</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 0.85rem; color: #71717a; margin-top: -10px;'>Plotting the exact moment in a user's lifecycle when they are most vulnerable.</p>", unsafe_allow_html=True)
         
         churn_by_tenure = filtered_df.groupby('Tenure')['Exited'].mean().reset_index()
         churn_by_tenure['Churn Rate (%)'] = (churn_by_tenure['Exited'] * 100).round(1)
@@ -96,8 +88,8 @@ def render(filtered_df, kpi_dict, excel_data):
         st.plotly_chart(fig_tenure, width='stretch', config={'displayModeBar': False})
         
     with col_chart4:
-        st.markdown("<h3 style='font-size: 1.2rem; color: #e4e4e7;'>Demographic Shift</h3>", unsafe_allow_html=True)
-        st.markdown("<p style='font-size: 0.85rem; color: #71717a; margin-top: -10px;'>How age correlates with account closure.</p>", unsafe_allow_html=True)
+        st.markdown("<h3 style='font-size: 1.2rem; color: #e4e4e7;'>Which age demographic is abandoning us the fastest?</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 0.85rem; color: #71717a; margin-top: -10px;'>Mapping generational shifts and their correlation with our platform's stickiness.</p>", unsafe_allow_html=True)
         
         churn_by_age = filtered_df.groupby('Age')['Exited'].mean().reset_index()
         churn_by_age['Churn Rate (%)'] = (churn_by_age['Exited'] * 100).round(1)

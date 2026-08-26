@@ -213,15 +213,15 @@ def load_filtered_data(age_min, age_max, credit_min, credit_max, failed_tx):
 if limits is not None:
     # --- Native Pill Navigation ---
     selection = st.pills("Navigation", 
-                         options=["Executive Overview", "AI Insights", "Retention Console", "A/B Testing Simulator", "BI Dashboard"],
-                         default="Executive Overview",
+                         options=["Morning Briefing", "Ask the Strategist", "Customer Rescue", "Experimentation Lab", "Deep Dive"],
+                         default="Morning Briefing",
                          label_visibility="collapsed")
     if not selection:
-        selection = "Executive Overview"
+        selection = "Morning Briefing"
 
     # --- Collapsible Filters ---
-    with st.expander("Adjust Audience Parameters"):
-        st.markdown("<p style='color: #a1a1aa; font-size: 0.9rem;'>Fine-tune the data slice. Our Random Forest model will dynamically recalculate flight risks in real-time.</p>", unsafe_allow_html=True)
+    with st.expander("Who are we analyzing today?"):
+        st.markdown("<p style='color: #a1a1aa; font-size: 0.9rem;'>Let's fine-tune the audience slice. Our live AI model will recalculate flight risks in real-time as you adjust these.</p>", unsafe_allow_html=True)
         col_f1, col_f2, col_f3 = st.columns(3)
         with col_f1:
             age_range = st.slider("Age Range", int(limits['min_age']), int(limits['max_age']), (int(limits['min_age']), int(limits['max_age'])))
@@ -256,18 +256,18 @@ if limits is not None:
         }
 
         # Render corresponding view based on sidebar selection
-        if selection == "Executive Overview":
+        if selection == "Morning Briefing":
             excel_data = generate_excel_report(filtered_df, kpi_dict)
             executive_overview.render(filtered_df, kpi_dict, excel_data)
             
-        elif selection == "AI Insights":
+        elif selection == "Ask the Strategist":
             ai_insights.render(kpi_dict, get_ai_recommendation)
             
-        elif selection == "Retention Console":
+        elif selection == "Customer Rescue":
             retention_console.render(top_50_risk, generate_customer_outreach_script)
             
-        elif selection == "A/B Testing Simulator":
+        elif selection == "Experimentation Lab":
             ab_testing_simulator.render()
             
-        elif selection == "BI Dashboard":
+        elif selection == "Deep Dive":
             bi_dashboard.render(age_range, credit_range, failed_tx)

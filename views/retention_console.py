@@ -12,8 +12,8 @@ def render(top_50_risk, generate_outreach_func):
         col_sim1, col_sim2 = st.columns([1, 1])
         with col_sim1:
             st.markdown("<br>", unsafe_allow_html=True)
-            retention_cost = st.number_input("Cost per Retention Offer ($)", min_value=0, value=50, step=10, help="How much are you willing to spend (e.g., statement credit) to save a single user?")
-            win_back_rate = st.slider("Expected Win-Back Rate (%)", 0, 100, 40, help="If we send a personalized apology, what percentage of users will actually stay?")
+            retention_cost = st.number_input("How much budget can we allocate to save a single user? ($)", min_value=0, value=50, step=10)
+            win_back_rate = st.slider("Realistically, what percentage will stay if we intervene? (%)", 0, 100, 40)
         
         total_campaign_cost = len(top_50_risk) * retention_cost
         projected_saved_revenue = (top_50_risk['Balance'].sum() * (win_back_rate / 100))
@@ -51,9 +51,9 @@ def render(top_50_risk, generate_outreach_func):
     top_50_risk_disp = top_50_risk_disp[cols]
     
     if 'Exited' in top_50_risk_disp.columns:
-        st.dataframe(top_50_risk_disp.drop(columns=['Exited']), width='stretch', height=300)
+        st.dataframe(top_50_risk_disp.drop(columns=['Exited']), width='stretch', height=300, hide_index=True)
     else:
-        st.dataframe(top_50_risk_disp, width='stretch', height=300)
+        st.dataframe(top_50_risk_disp, width='stretch', height=300, hide_index=True)
     
     st.markdown("<br><hr style='border-color: rgba(255,255,255,0.05);'><br>", unsafe_allow_html=True)
     
