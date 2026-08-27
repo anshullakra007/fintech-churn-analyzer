@@ -1,8 +1,8 @@
-# 📈 AI-Powered Customer Analytics & Churn Predictor 🚀 🚀
+#  AI-Powered Customer Analytics & Churn Predictor  
 
 An AI-driven operational CRM and analytics dashboard I built to help teams figure out why customers are leaving and what to do about it. It uses machine learning to predict churn and generative AI to automatically draft personalized emails to win them back!
 
-## 🚀 How It Works
+##  How It Works
 
 ```mermaid
 flowchart TD
@@ -41,7 +41,7 @@ flowchart TD
 
 ---
 
-## ✨ Cool Features
+##  Cool Features
 
 * **Real-time SQLite Integration:** The app connects directly to a local database using parameterized queries so you can fetch and filter data on the fly.
 * **CLV & Cohort Analysis:** Keep track of Customer Lifetime Value and easily spot where users drop off using beautiful Seaborn heatmaps.
@@ -52,7 +52,7 @@ flowchart TD
 
 ---
 
-## 🛠️ Want to run it yourself?
+##  Want to run it yourself?
 
 Here's how to spin it up on your local machine:
 
