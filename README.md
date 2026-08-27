@@ -1,4 +1,4 @@
-# 📈 AI-Powered Customer Analytics & Churn Predictor 🚀
+# 📈 AI-Powered Customer Analytics & Churn Predictor 🚀 🚀
 
 An AI-driven operational CRM and analytics dashboard I built to help teams figure out why customers are leaving and what to do about it. It uses machine learning to predict churn and generative AI to automatically draft personalized emails to win them back!
 
